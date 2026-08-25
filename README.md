@@ -31,6 +31,7 @@
 ```text
 personal-knowledge/
 ├── GOAL.md                     # 当前长期目标、checkpoint、next priorities
+├── AUTO_CAPTURE.md             # 自动知识捕获 Gate、三态与 commit policy
 ├── README.md
 ├── knowledge-map/
 │   ├── master-map.md
@@ -53,11 +54,22 @@ GitHub repository 是该知识体系的长期 Source of Truth。重要更新应�
 
 聊天内容本身不自动成为知识。只有经整理、具有长期价值、能够连接现有知识结构的内容才进入仓库。
 
+## Automatic Capture
+
+当对话中出现机制、模型、决策框架、经过纠错的稳定结论、重要反例、项目验证经验或长期知识缺口时，AI 应主动判断是否值得沉淀，并按 `AUTO_CAPTURE.md` 执行。
+
+自动维护有三种结果：
+
+- **AUTO-CAPTURE**：稳定、高价值内容，更新 Source of Truth。
+- **CANDIDATE**：值得保留但证据不足，明确 hypothesis / inference / unknown 或进入 Learning Queue。
+- **REJECT**：普通聊天、一次性查询、短期事实等低长期价值内容，不写入仓库。
+
 ## Continue / Handoff
 
-当用户要求“继续长期知识库”或“继续 /goal”时：
+当用户要求“继续长期知识库”或“继续 /goal”，或新对话触发长期知识沉淀时：
 
 1. 读取 `GOAL.md`；
-2. 检查 main 最近 commits 与 open PR；
-3. 再读取 `knowledge-map/master-map.md`、`mental-models/core-models.md`、`learning-queue.md` 和 `MAINTENANCE.md`；
-4. 从 `GOAL.md` 的 Current State / Next Priorities 接着做，不从头重新设计体系。
+2. 读取 `MAINTENANCE.md` 与 `AUTO_CAPTURE.md`；
+3. 检查 main 最近 commits 与 open PR；
+4. 按需要读取 `knowledge-map/master-map.md`、`mental-models/core-models.md`、`learning-queue.md`；
+5. 从 `GOAL.md` 的 Current State / Next Priorities 接着做，不从头重新设计体系。
