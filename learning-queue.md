@@ -53,6 +53,23 @@ Learning Queue 不是课程表，而是按杠杆率排序的知识缺口列表�
 - Deep database engine internals
 - Low-level distributed consensus implementation
 
+## Deferred / Condition-triggered
+
+### Human-facing PKM frontend for the Git knowledge base
+
+**Status:** CANDIDATE / defer
+
+当前先用 `ChatGPT + GitHub MCP + Markdown/Git` 验证长期知识维护。只有出现真实使用摩擦时，再评估 Obsidian + GitSync、SiYuan 或其他 frontend。
+
+触发条件包括：
+
+- 手机端阅读/编辑成为高频需求；
+- GitHub UI 明显降低知识浏览效率；
+- backlink / graph / local search 对实际学习产生明确收益；
+- 人工修改与 AI 修改需要稳定双向同步。
+
+在这些条件出现前，不为了“架构完整”提前增加同步、冲突处理和额外状态源。
+
 ## Queue Rule
 
 新主题进入队列前检查：
