@@ -23,13 +23,17 @@
   - 定期复盘模板
   - 标准知识条目模板
   - 跨会话 AI handoff 流程
-- v0.3 新增：
+- v0.3 已建立：
   - `AUTO_CAPTURE.md`
   - AUTO-CAPTURE / CANDIDATE / REJECT 三态判断
   - Capture Gate
   - commit prefix 规范
   - 新对话触发与恢复规则
   - 事件驱动 review loop
+- v0.3 真实验收 #1 已完成：
+  - AUTO-CAPTURE：Git-backed durable knowledge model
+  - CANDIDATE：Obsidian / GitSync frontend 仅作为条件触发候选
+  - REJECT：短期额度、安装/同步步骤等操作事实不进入长期知识库
 
 ## Operating Loop
 
@@ -50,24 +54,20 @@
 
 ## Next Priorities
 
-### P0 — 用真实对话验证 v0.3
+### P0 — 完成跨会话真实验收
 
-至少观察 3 个真实高价值主题，验证：
+在一个全新对话中验证：
 
-- 是否能正确区分 AUTO-CAPTURE / CANDIDATE / REJECT
-- 是否优先更新已有节点
-- 是否避免把短期事实误写成长期知识
-- commit 是否能清楚表达认知变化
+- 全局触发规则能否主动识别长期高价值知识；
+- AI 能否自行读取 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md`；
+- 无需用户重复解释 PKS 规则即可完成正确 capture / candidate / reject；
+- Git commit 是否符合当前协议。
 
-### P1 — 根据验证结果调整 Capture Gate
+### P1 — 根据跨会话验证结果决定是否发布 v0.3 stable
 
-只依据真实误判调整阈值，不预先增加复杂评分系统。
+当前首轮 3 主题验证未发现 Capture Gate 阈值需要调整。只有出现真实误判时才修改 Gate。
 
-### P2 — 验证跨会话恢复
-
-在后续新对话中确认：触发长期知识沉淀时，AI 能从 `GOAL.md` / `MAINTENANCE.md` / Git history 恢复当前维护协议，而无需重新设计体系。
-
-### P3 — Future Work（当前不实施）
+### P2 — Future Work（当前不实施）
 
 只有知识规模与实际维护成本证明有需要时，才考虑：
 
@@ -85,7 +85,7 @@
 - [x] 定义 commit prefix
 - [x] 定义新对话触发与恢复流程
 - [x] 定义事件驱动 Review
-- [ ] 至少用 3 个真实主题验证 capture 行为
+- [x] 至少用 3 个真实主题验证 capture 行为
 - [ ] 至少一次在新对话中成功恢复并执行协议
 - [ ] 根据真实验证结果修订协议并发布 v0.3 stable
 
