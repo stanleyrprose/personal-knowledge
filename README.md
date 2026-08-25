@@ -30,11 +30,19 @@
 
 ```text
 personal-knowledge/
+├── GOAL.md                     # 当前长期目标、checkpoint、next priorities
 ├── README.md
 ├── knowledge-map/
+│   ├── master-map.md
+│   └── _entry-template.md
 ├── mental-models/
+│   └── core-models.md
 ├── projects/
+│   ├── README.md
+│   └── _template.md
 ├── reviews/
+│   ├── README.md
+│   └── _template.md
 ├── learning-queue.md
 └── MAINTENANCE.md
 ```
@@ -42,3 +50,14 @@ personal-knowledge/
 ## Source of Truth
 
 GitHub repository 是该知识体系的长期 Source of Truth。重要更新应保留可追踪的 commit history；较大结构调整使用 branch/PR，确保其他 AI 或未来会话可以从仓库状态继续工作。
+
+聊天内容本身不自动成为知识。只有经整理、具有长期价值、能够连接现有知识结构的内容才进入仓库。
+
+## Continue / Handoff
+
+当用户要求“继续长期知识库”或“继续 /goal”时：
+
+1. 读取 `GOAL.md`；
+2. 检查 main 最近 commits 与 open PR；
+3. 再读取 `knowledge-map/master-map.md`、`mental-models/core-models.md`、`learning-queue.md` 和 `MAINTENANCE.md`；
+4. 从 `GOAL.md` 的 Current State / Next Priorities 接着做，不从头重新设计体系。
