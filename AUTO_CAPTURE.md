@@ -6,6 +6,8 @@
 
 目标不是保存聊天，而是持续维护用户的长期知识模型。
 
+当前状态：**Capture / Maintenance Protocol v0.3 已验证并冻结；长期 PKS System 仍处于真实运行实验期。**
+
 ## Trigger
 
 当对话中出现以下任一类高价值内容时，AI 应主动进行 capture 判断：
@@ -23,6 +25,27 @@
 1. `GOAL.md`
 2. `MAINTENANCE.md`
 3. 必要时再读 `knowledge-map/master-map.md`、`mental-models/core-models.md`、`learning-queue.md` 与最近 commits / PRs
+
+如果无法读取当前 canonical Git state，**fail closed：不得仅凭聊天记忆或旧上下文执行 PKS write。**
+
+## Repository Visibility Gate
+
+PKS 必须先考虑 repository visibility，再决定哪些内容可以进入 Git history。
+
+在 repository 未被明确验证为 private 前，默认按 **PUBLIC_SAFE** 模式处理。
+
+PUBLIC_SAFE 下硬性 REJECT：
+
+- credential、API key、token、password、private key、cookie、secret
+- 可识别的私人敏感信息
+- 财务/账户类敏感信息
+- 未公开的第三方信息或私人通信原文
+- 未公开商业、客户、合同、人事、竞争或策略判断
+- 任何一旦进入公开 Git history 会造成不可逆暴露风险的内容
+
+如果这些材料中存在长期价值，只允许保存**去标识、去敏后的机制、模型、边界和通用经验**。
+
+即使 repository 未来改为 private，credentials / secrets 仍然硬性 REJECT；private 不等于可以无条件保存敏感信息。
 
 ## Capture Gate
 
@@ -72,9 +95,9 @@
 
 处理：
 
-`定位已有节点 → Novelty / Duplicate Gate → 优先更新而非新建 → 写入证据/边界/连接 → safety guard → atomic commit`
+`读取最新 canonical state → 定位已有节点 → Novelty / Duplicate Gate → Epistemic Status → safety guard → latest SHA → atomic commit / PR → capture log → user receipt`
 
-默认不需要因普通、可逆的知识维护再次询问用户。
+默认不需要因普通、可逆的知识维护在写入前再次询问用户，但必须在写入后给出可纠正回执。
 
 ### 2. CANDIDATE
 
@@ -87,13 +110,13 @@
 
 处理优先级：
 
-1. 若已有对应节点，明确标注 `Inference` / `Judgment` / `Unknown` 与 confidence/证据缺口；
+1. 若已有对应节点，明确标注 `Inference` / `Judgment` / `Unknown` 与证据缺口；
 2. 若尚不值得成为正式节点，进入 `learning-queue.md`；
 3. 不把候选假设写成 Fact。
 
 ### 3. REJECT
 
-默认不进入长期知识库：
+默认不进入长期知识节点：
 
 - 普通聊天记录或逐字转录
 - 一次性查询
@@ -103,6 +126,9 @@
 - 无证据且无后续价值的即时观点
 - 某项目的日常 task log
 - 与已有节点核心结论重复、且没有 material delta 的内容
+- Visibility Gate 禁止的敏感或非公开内容
+
+REJECT 不产生知识节点；如果该主题已经进入正式 Capture Gate 评估，则允许只在 `reviews/capture-log.md` 留一条最小 operational record，用于评估 Gate 行为。
 
 ## Update vs New File
 
@@ -115,6 +141,30 @@
 5. 只有当已有结构无法自然容纳且内容已形成稳定主题时，才新增文件
 
 避免为每次讨论制造孤立 Markdown 文件。
+
+## Mandatory Epistemic Status
+
+对**新增或实质修改的知识性主张**，Epistemic Status 不再是“必要时可选”，而是必须明确。
+
+可使用：
+
+- `Fact`
+- `Estimate`
+- `Inference`
+- `Judgment`
+- `Unknown`
+
+规则：
+
+1. `Fact` 必须能指出 evidence：直接观测、项目结果、Git/运行证据、可靠一手资料、标准或可复核高质量来源之一；
+2. 没有足够 evidence 的综合性机制或解释，默认使用 `Inference`；
+3. 含目标权重、取舍或规范性选择的结论使用 `Judgment`；
+4. 数据或证据不足时明确 `Unknown`，不能靠语气补全；
+5. `Estimate` 应说明估算基础、时间点或关键假设；
+6. 改变旧结论时保留 `旧判断 → 新证据 → 新判断`，禁止静默覆盖；
+7. 项目验证是强证据之一，但不是 `Fact` 的唯一合法来源；已被可靠标准/一手资料支持的机制不必人为降级为 Inference。
+
+导航、模板、纯协议指令不要求每一行加 status；只要它们在陈述事实性或知识性主张时遵守上述规则。
 
 ## Knowledge Quality
 
@@ -133,17 +183,31 @@ Capture 后的内容应尽可能保留：
 
 根据内容实际需要填写，不为模板完整而制造文字。
 
-## Epistemic Status
+## Capture Decision Log
 
-必要时明确区分：
+为了让 Capture precision / recall proxy、duplicate、correction 等指标可被复盘，正式 Capture Gate 的决策写入：
 
-- `Fact`
-- `Estimate`
-- `Inference`
-- `Judgment`
-- `Unknown`
+`reviews/capture-log.md`
 
-对于依赖市场、法规、产品版本、价格、软件状态等变化的事实，应记录其时效性或后续 evidence refresh 需求。
+最小字段：
+
+`date | outcome | topic | epistemic status | gate/reason | target | commit | correction`
+
+规则：
+
+- 只记录真正进入 Capture Gate 的主题；普通聊天不记；
+- AUTO-CAPTURE / CANDIDATE / REJECT 都可记；
+- 同一会话多个事件可批量追加，避免无意义 commit churn；
+- log 是 operational evidence，不是知识节点；
+- capture log 不替代 Git history，也不作为第二 Source of Truth。
+
+## User Correction Receipt
+
+AUTO-CAPTURE 或 CANDIDATE 产生 Git write 后，AI 应在当前对话给出极简回执：
+
+`已 AUTO-CAPTURE/CANDIDATE → <file> → <commit> → <epistemic status>。如判断不对，可直接纠正。`
+
+目标是让用户拥有低摩擦 veto / correction loop，而不是增加写前审批流。
 
 ## Commit Policy
 
@@ -154,7 +218,7 @@ Capture 后的内容应尽可能保留：
 - `hypothesis:` 记录或调整待验证假设
 - `project:` 沉淀真实项目验证经验
 - `queue:` 调整长期学习缺口
-- `review:` 定期复盘、证据刷新或认知重构
+- `review:` 定期复盘、证据刷新、认知重构、capture log
 - `chore:` 结构、模板、维护协议等非知识内容
 
 一个 commit 应尽量对应一个认知变化或一个紧密相关的主题。
@@ -172,10 +236,28 @@ Capture 后的内容应尽可能保留：
 在任何 PKS write 前执行：
 
 1. 检查拟提交内容是否包含 credential、API key、token、password、private key、cookie、secret 或其他明显敏感标识；
-2. 若当前 GitHub write plane 提供 secret scanning 工具，对拟提交内容 / diff 执行扫描；
+2. 若当前 GitHub write plane / repository backend 提供并真正启用了 secret scanning，对拟提交内容 / diff 执行扫描；
 3. 一旦命中，**阻断写入**，先去敏或删除，再重新检查；
 4. 不允许采用“先 commit，再从最新版本删除”的方式处理 secret，因为 Git history 仍会保留泄露内容；
 5. Secret scanner 只能发现模式型 secrets，不能替代对商业敏感、私人或受限信息的语义判断。
+
+当前 repository 的 GitHub Advanced Security secret scanning 未被验证为可用，因此不能宣称 scanner 是强制执行层；协议级 safety gate 才是当前有效边界。
+
+## Protocol Self-Modification Rule
+
+AUTO-CAPTURE **不得自动修改自己的宪法**。
+
+以下属于 high-risk protocol mutation：
+
+- `AUTO_CAPTURE.md`
+- `MAINTENANCE.md`
+- 对 Capture Gate、Safety Gate、Epistemic Status、Source of Truth、写入权限边界的规则修改
+
+这类修改必须：
+
+`explicit review → branch → PR → diff review → merge`
+
+普通知识 Capture 不得顺便放宽 Capture Gate 或安全规则。
 
 ## Review Loop
 
@@ -185,8 +267,9 @@ Review 不按固定高频运行。当前阶段采用事件驱动：
 - 重大项目结束后
 - 核心模型被反例挑战后
 - 某领域准备进入重要实际决策前
+- capture log 显示重复 miss / correction / trigger miss / conflict 等持续摩擦时
 
-当知识规模明显扩大后，再考虑月度 review、staleness、confidence 与 GitHub Actions 自动检查。
+当知识规模明显扩大后，再考虑 staleness、confidence 与自动检查；不为了日历而自动重写知识库。
 
 ## Success Criterion
 
@@ -195,5 +278,7 @@ Review 不按固定高频运行。当前阶段采用事件驱动：
 - 后续对话能复用已有模型
 - 新证据能修正旧知识而非重复堆积
 - 项目经验能反哺通用认知
+- 非 PKS/MCP 的真实领域知识逐渐出现并被复用
 - 长期知识缺口越来越清晰
 - Git history 能解释知识如何演化
+- 用户纠正能被系统吸收，而不是被后续 AI 再次恢复成旧错误

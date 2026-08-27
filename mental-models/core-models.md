@@ -1,42 +1,70 @@
-# Mental Model Library v0.1
+# Mental Model Library v0.2
 
-心智模型不是结论，而是可反复调用的分析框架。每个模型都应记录：用途、机制、假设、边界、失效条件和实例。
+心智模型不是结论，而是可反复调用的分析框架。每个成熟模型都应记录：用途、机制、假设、边界、失效条件、evidence 和实例。
+
+## Library Status
+
+当前库必须区分：
+
+- **REFERENCE STUB**：建库时用于表达 intended framework 的简要提纲；不是已验证、已掌握或可直接当 Fact 引用的个人 durable knowledge；
+- **INSTANTIATED MODEL**：已经有机制、边界、evidence/project validation 或真实使用记录。
+
+**Models 1–8 当前统一降级为 REFERENCE STUB。** 它们可以作为未来分析入口，但未来 AI 不得把这些短提纲当成“用户已经形成的稳定模型”。
+
+Models 9–10 是当前真正 instantiated 的模型。
 
 ## 1. System Feedback Model
 
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
 `Input → Process → State → Output → Feedback`
 
-适用：软件系统、Agent、企业运营、网络系统、学习系统。
+适用候选：软件系统、Agent、企业运营、网络系统、学习系统。
 
-重点检查：反馈延迟、正/负反馈、状态不可见、局部优化、外部性。
+待真实使用验证：反馈延迟、正/负反馈、状态不可见、局部优化、外部性如何改变决策。
 
 ## 2. Constraint / Bottleneck Model
 
-系统表现通常受最关键约束限制，而不是所有组成部分平均决定。
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
+候选框架：系统表现可能受关键约束限制，而不是所有组成部分平均决定。
 
 `System Throughput ≈ Bottleneck Capacity`
 
-适用：网络容量、销售漏斗、软件性能、组织流程。
+潜在应用：网络容量、销售漏斗、软件性能、组织流程。
 
-失效条件：多个动态瓶颈同时存在，或瓶颈随负载变化。
+待验证边界：多个动态瓶颈同时存在，或瓶颈随负载变化。
 
 ## 3. Expected Value Model
 
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
 `EV = Σ P(outcome) × Value(outcome)`
 
-必须同时考虑 downside、不可逆性、流动性、时间和机会成本。
+潜在应用：投资、商业实验、技术方案选择。
 
-适用：投资、商业实验、技术方案选择。
+待实例化：downside、不可逆性、流动性、时间和机会成本如何进入真实决策。
 
 ## 4. Unit Economics Model
 
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
 `Contribution = Revenue per unit - Variable cost per unit`
 
-规模化前必须理解单位经济是否成立；增长不能自动修复负单位经济。
+潜在应用：电商、SaaS、FWA、AI 服务。
 
-适用：电商、SaaS、FWA、AI 服务。
+待真实项目实例化，而不是把一句公式当成已拥有的商业模型。
 
 ## 5. Telecom Capacity-Economics Bridge
+
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
+候选连接：
 
 `Traffic Demand ↔ Spectrum × Spectral Efficiency × Sites × Utilization`
 
@@ -44,46 +72,65 @@
 
 `Capacity → Served Users → Revenue → CAPEX/OPEX → ROI`
 
-适用：频谱、5G站点、FWA、Massive MIMO投资判断。
+潜在应用：频谱、5G站点、FWA、Massive MIMO投资判断。
+
+只有真实网络/商业判断形成 evidence、边界和结果后，才升级为 instantiated model。
 
 ## 6. Agent Architecture Model
 
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
+候选框架：
+
 `Agent = Model + Context + Memory + Tools + State + Control Loop`
 
-多 Agent 系统再增加：
+多 Agent 系统可能再增加：
 
 `Roles + Communication + Coordination + Evaluation + Synthesis`
 
-适用：AWR、OpenClaw、自动化 Agent 系统设计。
+待从真实 Agent 项目验证组成、边界和失效条件。
 
 ## 7. Reversible Decision Model
 
-决策首先区分：
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
 
-- Reversible：低成本可撤销，可快速实验。
+候选区分：
+
+- Reversible：低成本可撤销，可快速实验；
 - Irreversible：高成本或难恢复，需要更多证据与审查。
 
-适用：工程变更、商业实验、资本投入。
+潜在应用：工程变更、商业实验、资本投入。
+
+待真实决策案例实例化。
 
 ## 8. Evidence Ladder
 
-优先级通常为：
+**Status:** REFERENCE STUB  
+**Epistemic Status:** Unknown / not yet instantiated in PKS
+
+候选启发式：
 
 `直接观测/一手数据 > 可重复实验 > 高质量研究 > 多源一致证据 > 专家意见 > 个案/传闻`
 
-实际权重仍取决于领域、样本与测量质量。
+实际权重高度依赖领域、测量、样本和来源质量，因此不能把这条顺序机械当成普适 Fact。
 
-用于避免把“信息很多”误认为“证据很强”。
+待真实判断案例实例化。
 
 ## 9. Git-backed Durable Knowledge Model
 
-长期 AI 知识系统应把“推理界面”和“持久知识状态”分层：
+**Status:** INSTANTIATED MODEL  
+**Epistemic Status:** Judgment + Project-validated architecture pattern  
+**Evidence:** PKS v0.1–v0.3 Git history、跨对话 recovery、read/write adapter E2E
+
+长期 AI 知识系统可以把“推理界面”和“持久知识状态”分层：
 
 `Conversation / AI Reasoning → Capture Gate → Markdown Knowledge → Git History → Future AI Recovery`
 
 ### Why it matters
 
-聊天上下文、模型 memory 和具体 UI 都可能变化；长期知识若只存在于对话或单一 SaaS 内，跨会话、跨 AI 和长期审计能力都较弱。Git-backed Markdown 把稳定知识状态放到外部、可版本化、可迁移的载体中。
+聊天上下文、模型 memory 和具体 UI 都可能变化；长期知识若只存在于对话或单一 UI 内，跨会话、跨 AI 和长期审计能力都较弱。Git-backed Markdown 把稳定知识状态放到外部、可版本化、可迁移的载体中。
 
 ### Mechanism
 
@@ -92,33 +139,42 @@
 - diff 显示“旧判断 → 新证据 → 新判断”；
 - branch / PR 处理结构性或高影响变更；
 - `GOAL.md` / maintenance protocol 保存当前目标和接力规则；
-- AI 通过工具读取当前状态后继续，而不是依赖完整聊天历史。
+- AI 通过工具读取当前 state 后继续，而不是依赖完整聊天历史。
 
 ### How to use
 
-适用于需要长期 AI 协作、跨会话恢复、知识演化可追踪的个人或项目知识系统。核心原则是：
+适用于需要长期 AI 协作、跨会话恢复、知识演化可追踪的个人或项目知识系统。
 
-`Git repository = canonical state`，而 ChatGPT、Obsidian、Web UI、RAG 等只是可替换的 interaction / retrieval layer。
+核心原则：
+
+`Git repository = canonical knowledge state`
+
+GitHub、ChatGPT、Obsidian、Web UI、RAG 等是可替换 host / interaction / retrieval layer。
 
 ### Preconditions
 
 - 知识主要能表示为文本或可链接资产；
-- AI 具有可靠的仓库读取/写入能力；
+- AI 具有可靠的 repository read/write 能力；
 - 有最小维护协议，避免把聊天流水账全部提交；
 - 关键变化通过有语义的 commit 保存。
 
 ### Boundaries / Failure Conditions
 
-- GitHub/Git 不适合作为高频 WYSIWYG 笔记体验本身；人类浏览体验可能需要额外 frontend。
+- Git 不适合作为高频 WYSIWYG 笔记体验本身；人类浏览体验可能需要额外 frontend。
 - 大量二进制、实时协同数据库或复杂 block-object 数据不天然适合纯 Markdown + Git。
-- 若 AI 在新会话中没有全局触发规则，它不会因为仓库存在就自动读取；需要外部 trigger 或显式命令。
+- canonical storage 在 Git 内，但 activation 依赖当前 AI 环境；如果 trigger 不生效，知识存在却不会被主动恢复。
+- 若 read adapter 不可用却仍允许 write，会产生 write-without-read 风险；因此 PKS 必须 fail closed。
 - Git history 只有在 commit 具有认知语义时才有价值；高频无意义 auto-commit 会降低可读性。
 
 ### Alternative
 
-Notion、Anytype、SiYuan、Obsidian 等可以承担更好的编辑/浏览层，但不必因此替换 canonical storage。是否增加 frontend 应由真实使用摩擦触发，而不是为了架构完整提前复杂化。
+Notion、Anytype、SiYuan、Obsidian 等可以承担更好的编辑/浏览层，但不必因此替换 canonical Git state。是否增加 frontend 应由真实使用摩擦触发。
 
 ## 10. Single-Consumer Request Body / Parsed-Body Handoff Model
+
+**Status:** INSTANTIATED MODEL  
+**Epistemic Status:** Fact（项目观测） + Inference（跨框架泛化）  
+**Evidence:** Node/Express + MCP Streamable HTTP 故障、production fix 与后续验证
 
 对 HTTP request body、socket stream、file stream 等一次性/有状态输入，首先要明确“谁拥有消费权”。同一份底层 stream 不应由多个中间件或 handler 在没有显式协调的情况下重复读取。
 
@@ -128,15 +184,15 @@ Notion、Anytype、SiYuan、Obsidian 等可以承担更好的编辑/浏览层，
 
 ### Why it matters
 
-许多集成故障表面看起来像 OAuth、协议格式、Content-Type 或服务端参数错误，真实根因却是上游 middleware 已经消费并解析了输入，而下游 library 仍假设自己能从原始 stream 再读一次。这样会产生空 body、unexpected EOF、invalid JSON、400 Bad Request 等次生症状，并把排障方向错误地引向认证或协议层。
+许多集成故障表面看起来像 OAuth、协议格式、Content-Type 或服务端参数错误，真实根因却可能是上游 middleware 已经消费并解析了输入，而下游 library 仍假设自己能从原始 stream 再读一次。这样会产生空 body、unexpected EOF、invalid JSON、400 Bad Request 等次生症状，并把排障方向错误地引向认证或协议层。
 
 ### Mechanism
 
-以 Node/Express 为例：
+以已验证的 Node/Express 案例：
 
 `IncomingMessage stream → express.json() consumes stream → req.body becomes parsed object → downstream MCP handler tries to read IncomingMessage again → no original bytes remain`
 
-如果下游 handler 支持显式传入已解析 body，则正确交接应变为：
+如果下游 handler 支持显式传入已解析 body，则正确交接为：
 
 `IncomingMessage stream → express.json() → req.body → downstream handler(parsedBody)`
 
@@ -144,15 +200,13 @@ Notion、Anytype、SiYuan、Obsidian 等可以承担更好的编辑/浏览层，
 
 ### How to use
 
-当一个请求经过 middleware、framework adapter、SDK handler 或 protocol bridge 时，逐层检查：
+当请求经过 middleware、framework adapter、SDK handler 或 protocol bridge 时，逐层检查：
 
-1. 这一层接收的是 raw stream、buffer、string，还是 parsed object？
+1. 这一层接收 raw stream、buffer、string，还是 parsed object？
 2. 这一层是否会消费/关闭/rewind 输入？
 3. 下游 API 期待自己读取 raw request，还是允许传入已经解析的 body？
 4. 如果上游已经解析，是否存在显式 handoff 参数把解析结果交给下游？
 5. 如果必须保留 raw bytes，是否应在最上游先 buffer/capture，再分别提供 raw 与 parsed representation？
-
-调试时不要只检查“token 是否有效”和“JSON 是否正确”，还应检查 body 在进入目标 handler 前是否仍然存在。
 
 ### Preconditions
 
@@ -167,24 +221,22 @@ Notion、Anytype、SiYuan、Obsidian 等可以承担更好的编辑/浏览层，
 
 ### Boundaries / Failure Conditions
 
-- 不是所有 body 都严格只能读取一次：如果框架已经完整 buffer 并支持 replay/clone，多个消费者可以读取不同副本；此时约束从“单消费者”变成“单一底层读取 + 显式复制”。
+- 不是所有 body 都严格只能读取一次：如果框架已经完整 buffer 并支持 replay/clone，多个消费者可以读取不同副本；约束变成“单一底层读取 + 显式复制”。
 - WHATWG `Request.clone()`、缓存后的 Buffer、某些 serverless runtime 会提供可重复读取语义，不能机械假设 body 一定消失。
-- 对超大 body、文件上传或 streaming protocol，简单 buffer 整个请求可能导致高内存占用、延迟和 DoS 风险；这时应优先明确 stream ownership，而不是为了兼容而复制全部数据。
-- HMAC/webhook signature verification 常要求 exact raw bytes；如果先 JSON parse 再 stringify，字节序列可能变化，签名会失败。此时必须在解析前保留 raw body。
-- 如果 400 来自 schema、protocol version、Content-Type 或 JSON-RPC 本身错误，本模型不能替代协议级验证；它只解释“数据在进入 handler 之前已被消费/变形”的一类问题。
+- 对超大 body、文件上传或 streaming protocol，简单 buffer 整个请求可能导致高内存占用、延迟和 DoS 风险；这时应优先明确 stream ownership。
+- HMAC/webhook signature verification 常要求 exact raw bytes；如果先 JSON parse 再 stringify，字节序列可能变化，签名会失败。
+- 如果 400 来自 schema、protocol version、Content-Type 或 JSON-RPC 本身错误，本模型不能替代协议级验证。
 
 ### Counterexamples / Alternatives
 
-可选设计有三种：
+- **Single owner**：最终 protocol handler 独占 raw request；
+- **Parse then hand off**：framework 解析一次，再把 parsed body 显式交给下游；
+- **Capture raw + parsed dual view**：保留 raw bytes，同时生成 parsed object，分别供验签与业务逻辑使用。
 
-- **Single owner**：让最终 protocol handler 独占 raw request，上游不解析 body。适合 handler 自己完整处理协议的场景。
-- **Parse then hand off**：由 framework middleware 解析一次，再把 `req.body` 显式传给下游。适合下游 API 支持 parsed body 的场景。
-- **Capture raw + parsed dual view**：最上游保存 raw bytes，同时生成 parsed object，分别交给签名校验和业务逻辑。适合 webhook/signature 等必须同时需要两种表示的场景。
-
-选择标准不是“哪种写法更简洁”，而是谁需要 raw bytes、是否需要 streaming、body 大小、是否需要验签，以及下游 library 的输入契约。
+选择标准取决于谁需要 raw bytes、是否需要 streaming、body 大小、是否需要验签，以及下游 library 的输入契约。
 
 ### Project validation
 
 在一个 Node/Express + MCP Streamable HTTP 服务中，OAuth 已成功且 token 有效，但 `POST /mcp initialize` 持续返回 400。最终验证根因是 `express.json()` 已提前消费 request body，而 MCP `toNodeHandler` 再次尝试读取原始 body。将 `req.body` 显式传给 `toNodeHandler` 后恢复正常。
 
-该案例说明：当认证层已被证实成功，而协议入口仍出现无法解释的 4xx 时，应把“middleware 是否改变或消费了请求”提升为一级排障假设，而不是继续围绕 OAuth 重复排查。
+因此，认证层已证实成功而协议入口仍出现无法解释的 4xx 时，应把“middleware 是否改变或消费请求”提升为一级排障假设。
