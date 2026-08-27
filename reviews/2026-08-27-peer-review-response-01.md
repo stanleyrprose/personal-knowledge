@@ -62,16 +62,16 @@
 
 ### 3. Pre-write secret guard
 
-**Decision:** ACCEPT.
+**Decision:** ACCEPT, with capability boundary.
 
 写入前：
 
 - 先做敏感信息语义检查；
-- 若 Github MCP 提供 secret scanning，则扫描拟提交内容 / diff；
+- 若 Github MCP / repository backend 提供并真正启用了 secret scanning，则扫描拟提交内容 / diff；
 - 命中 credential / key / token / password / private key 等则阻断写入；
 - 去敏后重新扫描。
 
-重要边界：这目前是 **write-protocol hard gate**，不是 GitHub server-side pre-receive hook。若未来真实出现 bypass，再考虑把 guard 下沉到独立 write proxy / GitHub protection layer。
+重要边界：这目前首先是 **write-protocol hard gate**，不是 GitHub server-side pre-receive hook。若未来真实出现 bypass，再考虑把 guard 下沉到独立 write proxy / GitHub protection layer。
 
 ### 4. Concurrent writes need explicit protection
 
@@ -181,6 +181,22 @@
 - `.obsidian/` 默认不进 Git
 
 这正是 friction-driven architecture evolution 的一个成功案例，而不是对旧策略的背离。
+
+## Implementation Check — Secret Scanning
+
+2026-08-27 在本次 review branch 上实际调用 Github MCP 的 `run_secret_scanning` 做能力验证。
+
+结果：
+
+`Repository does not have GitHub Advanced Security enabled.`
+
+因此当前应明确区分：
+
+- **Fact:** PKS 已建立 pre-write sensitive/secret protocol guard；
+- **Fact:** 当前 repository backend 未启用可用的 GitHub Advanced Security secret scanning；
+- **Unknown / Future option:** 是否值得为了这一能力启用 GHAS 或增加独立 write-proxy scanner。
+
+结论：**tool 名称存在不等于 backend capability 已生效。** 当前不能宣称“自动 secret scanner 已强制执行”；只能宣称 protocol-level guard 已生效，自动 scanner 是 capability-dependent enhancement。
 
 ## Operational Watchpoints Adopted
 
