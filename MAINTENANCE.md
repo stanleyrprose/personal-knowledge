@@ -36,7 +36,7 @@ GitHub 是长期 Source of Truth。聊天记录是输入，不是最终知识资
 
 - **AUTO-CAPTURE**：稳定、高价值、低争议且具有长期复用价值，可直接维护 Source of Truth。
 - **CANDIDATE**：值得保留但证据不足，必须保留 epistemic status，必要时进入 `learning-queue.md`。
-- **REJECT**：低长期价值内容，不进入仓库。
+- **REJECT**：低长期价值或重复且无 material delta 的内容，不进入仓库。
 
 优先更新现有知识节点；只有形成稳定独立主题时才新增文件。
 
@@ -45,14 +45,16 @@ GitHub 是长期 Source of Truth。聊天记录是输入，不是最终知识资
 1. 先回答并解决现实问题。
 2. 判断是否触发 Automatic Capture。
 3. 读取必要的仓库状态，避免重复或与既有模型冲突。
-4. 定位 Knowledge Map 节点。
-5. 连接已有知识。
-6. 判断能否抽象或修正 Mental Model。
-7. 检查前提、反例和失效条件。
-8. 若有真实项目，记录验证方式与结果。
-9. 发现的新缺口进入 Learning Queue。
-10. 必要时更新 Mastery。
-11. 使用符合 `AUTO_CAPTURE.md` 的 commit prefix 保存认知变化。
+4. 执行 Novelty / Duplicate Exclusion Gate，确认是新增、更新还是 no-op。
+5. 定位 Knowledge Map 节点。
+6. 连接已有知识。
+7. 判断能否抽象或修正 Mental Model。
+8. 检查前提、反例和失效条件。
+9. 若有真实项目，记录验证方式与结果。
+10. 发现的新缺口进入 Learning Queue。
+11. 必要时更新 Mastery。
+12. 写入前执行敏感信息 / secret safety guard。
+13. 使用符合 `AUTO_CAPTURE.md` 的 commit prefix 保存认知变化。
 
 ## 5. 知识条目的最小质量标准
 
@@ -122,6 +124,7 @@ GitHub 是长期 Source of Truth。聊天记录是输入，不是最终知识资
 - 重大项目结束后
 - 核心模型被现实反例挑战后
 - 某领域准备进入重要实际决策阶段时
+- 出现重复检索失败、并发冲突或 safety guard block 等系统摩擦时
 
 Review 检查：
 
@@ -131,6 +134,9 @@ Review 检查：
 - 是否出现新的跨域连接？
 - 哪些项目经验值得沉淀为通用模型？
 - 哪些依赖法规、市场、软件版本等变化的 Fact 已经 stale？
+- 是否出现 duplicate node / retrieval miss？
+- 是否出现 stale write / merge conflict？
+- 是否出现 secret / sensitive information block？
 
 知识规模扩大、维护成本实际出现后，再评估月度 cadence、confidence、staleness 与 GitHub Actions 自动检查。
 
@@ -212,3 +218,56 @@ PKS 默认采用分离的 GitHub tool plane：
 ### Boundary
 
 Obsidian 的 graph、backlink、plugin、workspace 属于 frontend capability。只有真实使用证明它们改善 retrieval / navigation / editing 时，才进入 PKS architecture；不能因为 Obsidian 支持这些功能就默认启用。
+
+## 15. Pre-write Safety Guard
+
+PKS 的自动写入不得依赖“提交后再发现 secret”的补救模式。
+
+在写入前：
+
+1. 对拟写入内容做语义级敏感信息检查；
+2. 若 Github MCP 提供 `run_secret_scanning` 或同类能力，对拟提交内容 / diff 进行模式扫描；
+3. 检测到 credential、API key、token、password、private key、cookie 或 secret 时阻断 write；
+4. 去敏后重新扫描；
+5. 商业敏感、私人或受限信息即使未命中 secret scanner，也不得因 AUTO-CAPTURE 自动进入仓库。
+
+Scanner 是辅助 guard，不是安全边界的全部。
+
+## 16. Optimistic Concurrency / Freshness Guard
+
+PKS 现在可能同时被多个 ChatGPT 会话、AI agent 与 Android/Obsidian 修改，因此不能假设单线程写入。
+
+### Existing-file update
+
+- 更新已有文件前，先读取当前最新版本及 SHA；
+- 使用 Github MCP 更新已有文件时必须基于该最新 SHA；
+- 如果 SHA stale / write conflict，禁止 force overwrite；
+- 必须重新读取最新版本，比较并合并语义差异，再重新提交。
+
+这相当于以 Git blob SHA 作为 lightweight optimistic concurrency control。
+
+### Multi-file / high-risk change
+
+以下默认使用 branch → PR → review → merge：
+
+- 删除、重命名或移动长期知识文件；
+- 批量合并或拆分 knowledge nodes；
+- 修改 `AUTO_CAPTURE.md` 或 `MAINTENANCE.md` 等核心维护协议；
+- 大规模改写 `knowledge-map/master-map.md`；
+- 跨多个目录的结构重构；
+- 解决 human edit 与 AI edit 之间存在实质语义冲突的多文件变更。
+
+`GOAL.md` 的普通 checkpoint / status 更新仍可 atomic commit；如果它同时改变系统规则，则随对应 structural PR 一起修改。
+
+## 17. Operational Metrics — Lightweight Only
+
+当前不引入独立 telemetry/database。只在真实事件发生时记录以下 friction signals：
+
+- **Duplicate / Retrieval Miss**：AI 新建或准备新建一个实际已有的概念；
+- **Capture Correction**：后续 Review 证明某次 capture 应被降级、删除或改写；
+- **Retrieval Effort Proxy**：为定位目标节点需要读取多少文件 / 发起多少 tool calls；不强求不可观测的精确 token 成本；
+- **Concurrency Conflict**：stale SHA、merge conflict、Android 与 AI divergent edit；
+- **Safety Block**：secret / sensitive information 在写入前被阻断；
+- **Human View Friction**：Obsidian/GitSync sync 或 conflict 是否形成重复维护成本。
+
+只有这些信号持续出现，才升级检索、元数据或自动 review 架构。

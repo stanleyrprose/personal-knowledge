@@ -39,6 +39,25 @@
 
 不要求机械计分。若某一项本身价值极高（例如真实项目直接证伪核心模型），可直接 capture。
 
+### Novelty / Duplicate Exclusion Gate
+
+通过价值 Gate 后，在 `AUTO-CAPTURE` 前必须再做一次已有知识检查。该 Gate 不使用没有可靠测量基础的“80% 语义相似度”等伪精确阈值，而检查拟写入内容是否带来 **material delta**。
+
+处理规则：
+
+- 如果已有节点已经包含同一核心结论，且新内容没有新增 evidence、boundary、counterexample、纠错、decision impact 或 project validation，则结果为 **REJECT / no-op**；
+- 如果主题相同但存在 material delta，则 **UPDATE existing node**，而不是创建平行节点；
+- 只有已有结构无法自然容纳、且内容形成稳定独立主题时，才新增文件。
+
+`material delta` 的典型形式：
+
+- 新证据显著提高或降低原结论可信度；
+- 新增重要适用前提或失效条件；
+- 出现能够挑战旧模型的反例；
+- 项目实践验证、修正或证伪原模型；
+- 原结论被纠正；
+- 新知识会改变真实决策方式。
+
 ## Three Outcomes
 
 ### 1. AUTO-CAPTURE
@@ -53,7 +72,7 @@
 
 处理：
 
-`定位已有节点 → 优先更新而非新建 → 写入证据/边界/连接 → atomic commit`
+`定位已有节点 → Novelty / Duplicate Gate → 优先更新而非新建 → 写入证据/边界/连接 → safety guard → atomic commit`
 
 默认不需要因普通、可逆的知识维护再次询问用户。
 
@@ -83,6 +102,7 @@
 - 单纯定义、没有新增理解的内容
 - 无证据且无后续价值的即时观点
 - 某项目的日常 task log
+- 与已有节点核心结论重复、且没有 material delta 的内容
 
 ## Update vs New File
 
@@ -144,7 +164,18 @@ Capture 后的内容应尽可能保留：
 - 不覆盖用户明确要求保留的重要旧判断；应记录“旧判断 → 新证据 → 修正后判断”。
 - 如知识内容存在明显争议，保留 competing explanations，而不是强行统一。
 - 涉及敏感私密信息、凭证、账户密钥等内容，不进入知识库。
+- 业务敏感原始材料默认不直接沉淀；如其中存在长期价值，优先保存去敏后的机制、模型和结论。
 - 不因为“可以自动写”而扩大仓库 scope。
+
+### Pre-write Safety Gate
+
+在任何 PKS write 前执行：
+
+1. 检查拟提交内容是否包含 credential、API key、token、password、private key、cookie、secret 或其他明显敏感标识；
+2. 若当前 GitHub write plane 提供 secret scanning 工具，对拟提交内容 / diff 执行扫描；
+3. 一旦命中，**阻断写入**，先去敏或删除，再重新检查；
+4. 不允许采用“先 commit，再从最新版本删除”的方式处理 secret，因为 Git history 仍会保留泄露内容；
+5. Secret scanner 只能发现模式型 secrets，不能替代对商业敏感、私人或受限信息的语义判断。
 
 ## Review Loop
 
