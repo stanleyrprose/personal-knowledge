@@ -2,6 +2,8 @@
 
 这是一个长期演化的个人知识体系（Personal Knowledge System, PKS）。目标不是积累孤立笔记，而是把学习、实践、模型、决策与复盘组织成可持续增长的知识网络。
 
+**当前状态：Capture / Maintenance Protocol v0.3 已验证并冻结；Long-term PKS System 仍在真实使用实验期。**
+
 **人类阅读入口：** [HOME.md](HOME.md)
 
 ## 核心结构
@@ -12,6 +14,8 @@
 4. **Business, Strategy & Investment** — 市场、客户、竞争、商业模式、单位经济、现金流、ROI 与风险决策。
 5. **Projects & Experiments** — 用真实项目验证知识和模型。
 6. **Knowledge Compounding** — 知识地图、心智模型、学习队列、复盘与持续迭代。
+
+领域地图代表 **Intended Coverage**；只有已有条目、evidence 或真实使用验证的内容才属于 **Possessed / Instantiated Knowledge**。详见 `knowledge-map/master-map.md`。
 
 ## 学习闭环
 
@@ -26,15 +30,15 @@
 - **M4** 能设计与判断
 - **M5** 能迁移与创新
 
-不同知识节点不追求同样深度。核心领域以 M4 为目标；工具型知识通常达到 M2–M3 即可；低杠杆知识保持 Reference 即可。
+Mastery 只用于真正 possessed / instantiated 的节点；Intended Coverage 不自动拥有 mastery。
 
 ## Repository Layout
 
 ```text
 personal-knowledge/
 ├── HOME.md                     # Android / Obsidian 友好的人类阅读入口
-├── GOAL.md                     # 当前长期目标、checkpoint、next priorities
-├── AUTO_CAPTURE.md             # 自动知识捕获 Gate、三态与 commit policy
+├── GOAL.md                     # 当前目标、checkpoint、next priorities
+├── AUTO_CAPTURE.md             # 自动知识捕获 Gate、三态、安全与 epistemic policy
 ├── README.md
 ├── knowledge-map/
 │   ├── master-map.md
@@ -45,27 +49,34 @@ personal-knowledge/
 │   ├── README.md
 │   └── _template.md
 ├── reviews/
+│   ├── capture-log.md
 │   ├── README.md
 │   └── _template.md
 ├── learning-queue.md
 ├── MAINTENANCE.md
-└── .gitignore                  # 忽略 Obsidian / OS 设备状态
+└── .gitignore
 ```
 
-## Source of Truth
+## Canonical Source of Truth
 
-GitHub repository 是该知识体系的长期 Source of Truth。重要更新应保留可追踪的 commit history；较大结构调整使用 branch/PR，确保其他 AI 或未来会话可以从仓库状态继续工作。
+**Git repository 是 canonical knowledge store；GitHub 是当前托管与协作平台。**
 
-聊天内容本身不自动成为知识。只有经整理、具有长期价值、能够连接现有知识结构的内容才进入仓库。
+重要更新应保留可追踪的 commit history；较大结构、高风险或协议调整使用 branch/PR，确保其他 AI 或未来会话可以从 repository state 继续工作。
+
+聊天内容本身不自动成为知识。只有经 Capture Gate 整理、具有长期价值、能够连接现有知识结构的内容才进入 repository。
+
+如果当前 AI 无法读取最新 canonical state，则不得凭聊天 memory 继续写入。
+
+## Visibility & Safety
+
+在 repository 未明确验证为 private 前，PKS 默认按 `PUBLIC_SAFE` 运行：私人敏感、财务/账户、未公开商业/客户/第三方信息和 secrets 不进入 Git history。长期价值只能以去敏后的机制/模型形式保存。
 
 ## Android / Obsidian Human View Layer
 
-Obsidian 被定义为 **View / Edit Layer**，不是新的 canonical storage。
-
-推荐同步结构：
+Obsidian 是 **View / Edit Layer**，不是新的 canonical storage。
 
 ```text
-GitHub Source of Truth
+Git repo / GitHub
         ↕ Git
       GitSync
         ↕
@@ -77,12 +88,12 @@ Android local folder
 原则：
 
 - 使用 GitSync clone / pull / commit / push 当前 repository；
-- 在 Obsidian 中直接把该本地 repository folder 打开为 Vault；
+- 在 Obsidian 中把本地 repository folder 打开为 Vault；
 - `.obsidian/`、`.trash/` 等设备/UI 状态通过 `.gitignore` 排除；
 - 手机编辑前先 sync，编辑后尽快 sync；
 - 同一 Vault 不同时让 GitSync 与 Obsidian Git plugin 管理 Git；
-- 内部链接优先使用标准 Markdown 相对链接，保持 GitHub 和 Obsidian 双端兼容；
-- conflict 应显式解决，不使用 `merge=union` 静默拼接语义冲突。
+- 内部链接优先标准 Markdown 相对链接；
+- conflict 显式解决，不使用 `merge=union` 静默拼接语义冲突。
 
 ## Automatic Capture
 
@@ -90,16 +101,21 @@ Android local folder
 
 自动维护有三种结果：
 
-- **AUTO-CAPTURE**：稳定、高价值内容，更新 Source of Truth。
-- **CANDIDATE**：值得保留但证据不足，明确 hypothesis / inference / unknown 或进入 Learning Queue。
-- **REJECT**：普通聊天、一次性查询、短期事实等低长期价值内容，不写入仓库。
+- **AUTO-CAPTURE**：稳定、高价值内容，更新 canonical Git state。
+- **CANDIDATE**：值得保留但证据不足，明确 epistemic status 或进入 Learning Queue。
+- **REJECT**：低价值、重复、敏感或不适合长期保存的内容，不形成知识节点。
+
+知识性主张必须区分 `Fact / Estimate / Inference / Judgment / Unknown`。
+
+正式 Capture Gate 决策可记录到 `reviews/capture-log.md`，用于观察系统是否真实有效，而不是以 commit 数量衡量成功。
 
 ## Continue / Handoff
 
-当用户要求“继续长期知识库”或“继续 /goal”，或新对话触发长期知识沉淀时：
+当用户要求“继续长期知识库”或新对话触发长期知识沉淀时：
 
 1. 读取 `GOAL.md`；
 2. 读取 `MAINTENANCE.md` 与 `AUTO_CAPTURE.md`；
 3. 检查 main 最近 commits 与 open PR；
-4. 按需要读取 `knowledge-map/master-map.md`、`mental-models/core-models.md`、`learning-queue.md`；
-5. 从 `GOAL.md` 的 Current State / Next Priorities 接着做，不从头重新设计体系。
+4. 按需要读取 Knowledge Map / Mental Models / Learning Queue / Capture Log；
+5. 从 `GOAL.md` 当前状态继续，不从头重建分类；
+6. 记住：**protocol v0.3 已冻结，system 仍 experimental；下一步是真实使用，不是继续加架构。**

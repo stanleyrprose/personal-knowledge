@@ -2,179 +2,223 @@
 
 ## Mission
 
-持续打造一个可跨会话、跨 AI、跨项目长期演化的个人知识体系。GitHub repository 是唯一长期 Source of Truth；聊天、临时笔记和外部资料只是输入。
+持续打造一个可跨会话、跨 AI、跨项目长期演化的个人知识体系。**Git repository 是 canonical knowledge store；当前托管与协作平台是 GitHub。** 聊天、model memory、Obsidian、临时笔记和外部资料只是输入、交互或检索层。
 
 ## Current Milestone
 
-**PKS v0.3 — Stable / Minor Hardening**
+**Capture / Maintenance Protocol v0.3 — Validated & Frozen**  
+**Long-term PKS System — Experimental / Real-use Observation**
 
-v0.3 核心目标已达成：ChatGPT / AI 能在真实对话中主动识别长期高价值内容，并按照统一协议自动维护 GitHub 知识模型，而不是等待用户每次明确说“保存”。当前不启动 v0.4，仅吸收真实使用与同行评审中低成本、高确定性的防御性改进。
+这一区分是刻意的：目前已经证明协议可以在真实 ChatGPT 新对话中恢复并执行，但还没有足够证据证明跨 AI、跨领域、长期数月运行的知识连续性已经稳定。
+
+当前不启动 v0.4。只允许低成本 observability / safety / epistemic hardening，之后转入真实使用。
 
 ## Current State
 
-- v0.1 已建立：
-  - `knowledge-map/master-map.md`
-  - `mental-models/core-models.md`
-  - `learning-queue.md`
-  - `MAINTENANCE.md`
-- v0.2 已建立：
-  - `/goal` 持久 checkpoint
-  - 项目实践模板
-  - 定期复盘模板
-  - 标准知识条目模板
-  - 跨会话 AI handoff 流程
-- v0.3 已建立并通过真实验收：
+### Protocol foundation
+
+- v0.1：Knowledge Map / Mental Models / Learning Queue / Maintenance
+- v0.2：`/goal` checkpoint / project-review templates / AI handoff
+- v0.3：
   - `AUTO_CAPTURE.md`
-  - AUTO-CAPTURE / CANDIDATE / REJECT 三态判断
+  - AUTO-CAPTURE / CANDIDATE / REJECT
   - Capture Gate
-  - commit prefix 规范
-  - 新对话触发与恢复规则
-  - 事件驱动 review loop
-  - 首轮三主题 Capture Gate 验证
-  - 全新对话自动恢复 / 自动 Capture 盲测
-- GitHub read plane 已完成真实 E2E：
-  - `GitHub Text MCP v3` 已连接 ChatGPT
-  - `read_text_file` / `list_directory` 可用
-  - 已成功读取 `personal-knowledge` 文本文件
-  - 已成功读取 private repo `github-text-mcp-bridge`
-  - 返回 inline `TextContent`，未进入 file materialization 读取路径
-  - PKS 默认采用 GitHub Text MCP read plane + Github MCP write plane
-- Human View Layer 已被真实摩擦触发：
-  - Android 上直接使用 GitHub UI 阅读 PKS 不方便
-  - 引入 `Obsidian + GitSync` 作为 Android View / Edit Layer
-  - GitHub 继续保持唯一 Source of Truth
-  - 新增 `HOME.md` 作为手机友好导航入口
-  - `.obsidian/` 等设备/UI 状态默认不进入 Git
-- Peer Review Minor Hardening 已吸收：
   - Novelty / Duplicate Exclusion Gate
-  - pre-write secret / sensitive information guard
-  - SHA-based optimistic concurrency guard
-  - high-risk mutation branch / PR policy
-  - lightweight operational friction metrics
-  - search / frontmatter 保持条件触发，不立即实施
+  - Mandatory Epistemic Status
+  - commit prefix
+  - new-conversation recovery
+  - event-driven review
+  - optimistic concurrency / latest-SHA guard
+  - visibility / sensitive-data guard
+  - protocol self-modification PR gate
+  - capture decision log + correction receipt
+
+### Validated in ChatGPT
+
+- GitHub Text MCP v3 `read_text_file` / `list_directory` 可用；
+- private repository read 已做 E2E；
+- inline `TextContent` read path 未进入 file materialization；
+- Github MCP write / atomic commit 可用；
+- 全新 ChatGPT 对话曾主动恢复 PKS protocol 并 AUTO-CAPTURE 到已有 node；
+- read/write adapter separation 在当前 ChatGPT 产品约束下有效。
+
+### Not yet validated as a long-term system
+
+- 不同 AI（非 ChatGPT）是否能仅靠 repo handoff 正确恢复；
+- 电信、商业、投资等非 PKS/MCP 领域是否会被正确 Capture / Reject / 修正；
+- trigger 在长期、多设备、connector/token 变化后是否稳定；
+- 知识规模增长后 retrieval 是否仍可靠；
+- 用户 correction、capture precision/recall proxy 是否长期可接受；
+- Human/AI 同时写入时 conflict 成本是否可控。
+
+### Human View Layer
+
+Android 上 GitHub UI 阅读不方便这一真实摩擦已经触发：
+
+- `Obsidian + GitSync` 作为 Android View / Edit Layer；
+- Git repo 继续是 canonical state；
+- `HOME.md` 作为手机入口；
+- `.obsidian/` 等设备/UI 状态默认不进 Git；
+- graph/backlink/plugin 不因“存在”而自动升级为 PKS 架构。
+
+## Knowledge-State Reality Check
+
+当前 repository 的高质量 durable knowledge 仍主要集中在：
+
+- Git-backed durable knowledge model
+- MCP content transport / materialization boundary
+- Single-consumer request-body handoff model
+- GitHub Text MCP Bridge project validation
+- PKS 自身 maintenance / review evidence
+
+因此当前最大的实验风险不是“功能不够”，而是 **self-referential capture diet**：系统不断沉淀 PKS/MCP 自身，而真实领域知识仍然稀薄。
+
+`knowledge-map/master-map.md` 已明确区分：
+
+- **Possessed / Instantiated Knowledge**：已有条目、证据或真实使用；
+- **Intended Coverage**：希望学习/连接的领域，不代表已经拥有或掌握。
 
 ## Operating Loop
 
-`真实问题 → 先解决问题 → 判断 capture 价值 → 通过 Text MCP 读取当前知识状态 → Duplicate / Novelty Gate → 更新既有模型优先 → 检查证据/反例/边界 → safety + freshness guard → 通过 Github MCP commit → GitHub 成为最新 canonical state → Human/AI 后续从 GitHub 同步并复用或修正`
+`真实问题 → 先解决 → 判断 capture → read latest canonical state → visibility/safety → duplicate/material delta → epistemic status/evidence → update existing node → latest SHA → atomic commit or PR → capture log → user correction receipt`
+
+如果无法读取最新 canonical state：**fail closed，不写。**
 
 ## Rules
 
 1. 不保存大量聊天转录；保存经整理后的稳定知识。
 2. 优先沉淀机制、模型、决策框架、边界、反例、项目验证和长期知识缺口。
-3. Fact / Estimate / Inference / Judgment / Unknown 必要时明确区分。
-4. 自动 capture 的具体判断遵守 `AUTO_CAPTURE.md`。
-5. 小型知识更新使用 atomic commit；结构、高风险或核心协议变化使用 branch → PR → review → merge。
+3. 新增/实质修改的知识性主张必须标 Fact / Estimate / Inference / Judgment / Unknown。
+4. 自动 capture 遵守 `AUTO_CAPTURE.md`；AUTO-CAPTURE 不得修改自己的规则。
+5. 小型知识更新使用 atomic commit；结构、高风险、协议变化使用 branch → PR → review → merge。
 6. 优先更新已有节点；重复且无 material delta 的内容不写入。
-7. 真实项目是知识验证层，而不是与知识库分离的附件。
-8. 新 AI / 新对话触发知识沉淀时，先读取 `GOAL.md` 与 `MAINTENANCE.md`，再按需要读取其他上下文。
-9. GitHub 文本读取优先使用 GitHub Text MCP；写入与 GitHub 控制操作使用 Github MCP。
+7. 新 AI / 新对话触发知识沉淀时，先读 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md`。
+8. 无可靠 read path 时禁止 write-without-read。
+9. GitHub Text MCP + Github MCP 是当前 ChatGPT adapter，不是不可替换的 PKS 本体原则。
 10. Obsidian / GitSync 是 Human View / Edit Layer，不是第二 Source of Truth。
-11. 写入前执行敏感信息 / secret safety guard，并基于最新 SHA 防止 stale overwrite。
-12. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
-13. 自动维护的目标是提升知识质量，不是增加 commit 数量。
+11. repository visibility 未明确验证为 private 前，默认 PUBLIC_SAFE；敏感/未公开内容不 AUTO-CAPTURE。
+12. 写入前执行 safety + latest SHA guard。
+13. 正式 Capture Gate 决策写入 `reviews/capture-log.md`；Capture write 后给用户可纠正回执。
+14. 自动维护的目标是提升知识质量，不是增加 commit 数量。
 
-## v0.3 Validation Summary
+## Validation Summary
 
-### Validation 01 — Capture Gate
+### Validation 01 — Three-state Gate
 
-通过三个真实主题验证：
+已验证 Gate 能产生 AUTO-CAPTURE / CANDIDATE / REJECT，不要求每个主题都产生知识 commit。
 
-- AUTO-CAPTURE：Git-backed durable knowledge model
-- CANDIDATE：Obsidian / GitSync frontend 仅作为条件触发候选
-- REJECT：短期额度、安装/同步步骤等操作事实不进入长期知识库
+### Validation 02 — New-conversation protocol recovery
 
-未发现需要调整 Capture Gate 阈值的真实误判。
+2026-08-27 在全新 ChatGPT 对话完成盲测：AI 主动恢复 protocol、检查 existing node、AUTO-CAPTURE，并提交：
 
-### Validation 02 — New-conversation recovery
+`e8d4c305f7e6046a3d2c49282adf16bc99036d32`  
+`model: add single-consumer request body handoff model`
 
-2026-08-27 在全新对话完成盲测：
+**Evidence supports:** protocol recovery in ChatGPT.  
+**Evidence does not yet support:** long-term cross-AI / cross-domain system stability.
 
-- AI 主动识别长期知识价值；
-- 主动恢复 PKS guidance / maintenance / auto-capture protocol；
-- 主动检查 Knowledge Map / Core Models placement；
-- 判断为 AUTO-CAPTURE；
-- 更新已有 `mental-models/core-models.md`；
-- 通过 atomic commit 保存：
-  - `e8d4c305f7e6046a3d2c49282adf16bc99036d32`
-  - `model: add single-consumer request body handoff model`
+### Validation 03 — Peer-review hardening 01
 
-详细证据见：
+已吸收 duplicate / safety / concurrency hardening；拒绝伪精确 80% semantic threshold；search/frontmatter/RAG 保持 condition-triggered。
 
-`reviews/2026-08-27-cross-conversation-validation-v03-stable.md`
+### Validation 04 — Grok independent review
 
-### Validation 03 — Peer review hardening
+独立评审指出：协议打通不等于系统 Stable；知识地图混合 intended/possessed；缺 capture observability；epistemic status 过于可选；activation 不在 Git 内。
 
-外部 AI 同行评审总体结论为 `Keep v0.3 / Minor Improve`。吸收了无需 v0.4 的防御性改进，拒绝了缺乏测量基础的 80% semantic-similarity hard threshold，并因真实 Android 摩擦已经发生而拒绝“继续 defer Obsidian”。详细 decision record 见：
+处理记录：
 
-`reviews/2026-08-27-peer-review-response-01.md`
+`reviews/2026-08-27-peer-review-response-02-grok.md`
 
 ## Next Priorities
 
-### P0 — 真实运行 v0.3 stable
+### P0 — Real-use observation, not more architecture
 
-不再为了验收制造测试主题。让系统在真实工作、学习、工程和决策对话中持续运行，观察：
+让 PKS 处理真实、非元问题。观察并记录：
 
-- duplicate / retrieval miss；
-- capture correction（真实误存，而不是简单“30 天没引用”）；
-- retrieval effort proxy：定位节点需要读取的文件 / tool-call 数量；
-- stale facts；
-- stale SHA / merge conflict；
-- secret / sensitive information safety block；
-- GitHub Text MCP read plane 的长期稳定性；
-- Obsidian + GitSync 的 Android 阅读收益与 conflict 成本。
+- AUTO-CAPTURE / CANDIDATE / REJECT
+- non-meta capture ratio
+- duplicate / retrieval miss
+- capture correction
+- trigger miss
+- retrieval effort proxy
+- Inference → Fact drift
+- stale SHA / merge conflict
+- safety block
+- Obsidian/GitSync friction
 
-只有真实问题持续出现时再修改协议。
+不制造测试主题，不为了“证明 PKS 有用”补全领域地图。
 
-### P1 — Event-driven Review
+### P1 — Real-domain evidence
 
-在以下情况触发 Review：
+只有真实工作/学习对话自然出现时，优先观察以下类型是否能正确进入或退出 PKS：
 
-- 累积若干新的真实 capture；
-- 重大项目结束；
-- 核心模型被现实反例挑战；
-- 某领域准备进入重要实际决策；
-- duplicate / retrieval miss 重复发生；
-- Human View Layer 出现重复 sync/conflict friction；
-- safety guard 或 concurrency guard 频繁触发。
+- Telecom / infrastructure mechanism or decision model
+- Business / investment judgment with explicit Judgment / Unknown
+- 与 PKS/MCP 无关的工程经验
+- 一次真实 REJECT
+- 一次旧判断被新证据修正
+- 一次用户对 AUTO-CAPTURE 的纠正/否决
 
-### P2 — Condition-triggered Future Work（当前不实施）
+不要求为了实验刻意制造这些主题。
 
-只有真实规模与维护成本证明有需要时，才考虑：
+### P2 — Cross-AI handoff validation
 
-- GitHub Text MCP `search_text` / keyword / line-range search；优先轻量文本搜索，再考虑 semantic retrieval
-- 极简 typed frontmatter（如 id / aliases / epistemic_status / last_verified / tags），仅在 metadata 能明确降低检索或 staleness 成本时实施
-- 同步少量经过证明有价值的 Obsidian vault 配置
-- 定期 staleness / confidence review
-- evidence refresh automation
-- GitHub Actions 自动检查
-- semantic search / RAG / GraphRAG / Knowledge Graph
+当有合适的不同 AI + Git read/write 环境时，做一次真正 cross-AI handoff：只给 repo / handoff 指令，看它能否读取协议、找到 existing node、避免重建分类。
 
-明确继续 **不实施**：独立 Postgres/SQLite 作为第二 Source of Truth；无真实检索失败证据时的 Vector DB / RAG / GraphRAG。
+失败时先改 handoff/runbook，不立即上新架构。
 
-## Done Definition for v0.3
+### P3 — Condition-triggered future work
 
-- [x] 定义自动 capture policy
+只有持续真实 friction 才考虑：
+
+1. GitHub Text MCP lightweight `search_text` / keyword / line-range search
+2. minimal typed metadata/frontmatter
+3. staleness automation
+4. semantic retrieval
+5. RAG / GraphRAG / Knowledge Graph
+
+明确不实施：
+
+- 为完整性补全所有地图节点
+- 第二 canonical database
+- 自动 mastery 打分
+- 定时 AI 重写整个知识库
+- 把 Text MCP 扩成 write plane
+
+## Protocol v0.3 Done Definition
+
+- [x] 定义 automatic capture policy
 - [x] 定义 AUTO-CAPTURE / CANDIDATE / REJECT
 - [x] 定义 Capture Gate
-- [x] 定义 commit prefix
-- [x] 定义新对话触发与恢复流程
-- [x] 定义事件驱动 Review
-- [x] 至少用 3 个真实主题验证 capture 行为
-- [x] 建立并验证 materialization-free GitHub Text MCP read plane
-- [x] 至少一次在新对话中成功恢复并执行协议
-- [x] 根据真实验证结果修订协议并发布 v0.3 stable
-- [x] 吸收首轮同行评审中的低成本 safety / duplicate / concurrency hardening
+- [x] 定义 duplicate/material-delta gate
+- [x] mandatory epistemic status
+- [x] visibility / safety guard
+- [x] optimistic concurrency guard
+- [x] protocol high-risk PR gate
+- [x] new-conversation recovery流程
+- [x] event-driven Review
+- [x] Git read/write adapter E2E in ChatGPT
+- [x] 至少一次 ChatGPT 新对话成功恢复并执行协议
+- [x] capture decision log / correction receipt protocol
+
+## System Maturity — Not Done
+
+- [ ] 多个真实非元领域 capture/reject/correction 样本
+- [ ] 长期 trigger reliability evidence
+- [ ] cross-AI handoff validation
+- [ ] retrieval scaling evidence
+- [ ] user correction / capture quality evidence
+- [ ] human/AI sync conflict evidence
 
 ## Handoff
 
-继续本 /goal 时：
+继续本 `/goal` 时：
 
-1. 查看 `main` 最新 commit 与 open PR。
-2. 通过 GitHub Text MCP 读取 `GOAL.md`、`MAINTENANCE.md`、`AUTO_CAPTURE.md`。
-3. v0.3 已 stable；不要重新设计整套体系，不因同行建议直接启动 v0.4。
-4. 从真实对话继续，只有触发 Capture Gate 时才维护知识库。
-5. Capture 前检查 duplicate / material delta；write 前检查 secret / sensitive data 与最新 SHA。
-6. 每次只沉淀真正具有长期价值的知识。
-7. 写入与 GitHub 控制操作使用 Github MCP。
-8. Android / Obsidian 是 Human View / Edit Layer；发生 sync conflict 时以 Git history 与当前知识语义判断，不把本地副本当作新的 Source of Truth。
-9. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。
+1. 读取 main 最新 commit / open PR。
+2. 读取 `GOAL.md`、`MAINTENANCE.md`、`AUTO_CAPTURE.md`。
+3. 明确：**protocol v0.3 frozen；system experimental。** 不把 protocol validation 当成 long-term system maturity。
+4. 从真实问题继续，不为了 PKS 制造题目。
+5. Capture 前检查 visibility / duplicate / epistemic status；write 前检查最新 canonical state / SHA / safety。
+6. 普通知识 atomic commit；协议或 high-risk mutation 走 PR。
+7. Capture write 后给用户 correction receipt。
+8. 若 repository state 与本文件冲突，以 Git history + 当前 state 为准并修正 checkpoint。
