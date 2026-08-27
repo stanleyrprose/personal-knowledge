@@ -79,6 +79,54 @@ Learning Queue 不是课程表，而是按杠杆率排序的知识缺口列表�
 
 只有真实数据证明需要时，才继续扩大 frontend/sync scope。
 
+## Deferred / Condition-triggered
+
+### Lightweight GitHub Text MCP content search
+
+**Status:** CANDIDATE / defer until retrieval friction
+
+优先考虑的未来能力不是 Vector DB，而是最小文本检索，例如：
+
+- `search_text` / keyword search
+- 路径过滤
+- line-range read
+- 返回匹配文件 + 少量上下文
+
+触发条件：
+
+- duplicate / retrieval miss 重复发生；
+- 为定位一个已有节点需要读取越来越多无关文件；
+- 知识文件数量明显增长后出现 read amplification；
+- 当前 `list_directory + read_text_file` 已经成为可观察瓶颈。
+
+如果触发，先实现轻量 grep/content search，再用真实数据判断是否需要 semantic retrieval。
+
+### Minimal typed frontmatter
+
+**Status:** CANDIDATE / defer
+
+候选字段：
+
+- `id`
+- `aliases`
+- `epistemic_status`
+- `last_verified`
+- `tags`
+
+当前不做全库 migration。只有出现以下真实问题时才实施：
+
+- aliases / stable id 能显著减少 duplicate node；
+- staleness review 需要可机器读取的 `last_verified`；
+- metadata filtering 能明显减少全文读取成本。
+
+避免为了“结构化”把 Markdown 知识库提前变成数据库 schema。
+
+### Semantic retrieval / RAG / GraphRAG
+
+**Status:** DEFER
+
+只有轻量文本搜索已经被真实检索失败证明不足时再评估。当前不引入 Vector DB、GraphRAG 或独立数据库作为第二 Source of Truth。
+
 ## Queue Rule
 
 新主题进入队列前检查：
