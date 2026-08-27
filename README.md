@@ -2,6 +2,8 @@
 
 这是一个长期演化的个人知识体系（Personal Knowledge System, PKS）。目标不是积累孤立笔记，而是把学习、实践、模型、决策与复盘组织成可持续增长的知识网络。
 
+**人类阅读入口：** [HOME.md](HOME.md)
+
 ## 核心结构
 
 1. **Thinking & Epistemology** — 系统思维、逻辑、因果、概率、决策与批判性思维。
@@ -30,6 +32,7 @@
 
 ```text
 personal-knowledge/
+├── HOME.md                     # Android / Obsidian 友好的人类阅读入口
 ├── GOAL.md                     # 当前长期目标、checkpoint、next priorities
 ├── AUTO_CAPTURE.md             # 自动知识捕获 Gate、三态与 commit policy
 ├── README.md
@@ -45,7 +48,8 @@ personal-knowledge/
 │   ├── README.md
 │   └── _template.md
 ├── learning-queue.md
-└── MAINTENANCE.md
+├── MAINTENANCE.md
+└── .gitignore                  # 忽略 Obsidian / OS 设备状态
 ```
 
 ## Source of Truth
@@ -53,6 +57,32 @@ personal-knowledge/
 GitHub repository 是该知识体系的长期 Source of Truth。重要更新应保留可追踪的 commit history；较大结构调整使用 branch/PR，确保其他 AI 或未来会话可以从仓库状态继续工作。
 
 聊天内容本身不自动成为知识。只有经整理、具有长期价值、能够连接现有知识结构的内容才进入仓库。
+
+## Android / Obsidian Human View Layer
+
+Obsidian 被定义为 **View / Edit Layer**，不是新的 canonical storage。
+
+推荐同步结构：
+
+```text
+GitHub Source of Truth
+        ↕ Git
+      GitSync
+        ↕
+Android local folder
+        ↕
+     Obsidian
+```
+
+原则：
+
+- 使用 GitSync clone / pull / commit / push 当前 repository；
+- 在 Obsidian 中直接把该本地 repository folder 打开为 Vault；
+- `.obsidian/`、`.trash/` 等设备/UI 状态通过 `.gitignore` 排除；
+- 手机编辑前先 sync，编辑后尽快 sync；
+- 同一 Vault 不同时让 GitSync 与 Obsidian Git plugin 管理 Git；
+- 内部链接优先使用标准 Markdown 相对链接，保持 GitHub 和 Obsidian 双端兼容；
+- conflict 应显式解决，不使用 `merge=union` 静默拼接语义冲突。
 
 ## Automatic Capture
 
