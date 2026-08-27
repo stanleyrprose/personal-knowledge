@@ -2,113 +2,90 @@
 
 ## Problem / Goal
 
-ChatGPT 通过官方 GitHub MCP 读取 repository file 时，会出现 `Allow file materialization?` 人工审批，导致 autonomous workflow 无法连续执行。
+ChatGPT 通过普通 GitHub MCP 的 repository-file read 路径时，可能触发 `Allow file materialization?` 人工审批，导致 autonomous workflow 被结果处理阶段打断。
 
-目标：构建一个最小 read-only Remote MCP bridge，让 GitHub 文件内容以 inline MCP `TextContent` 返回，而不是 file attachment / EmbeddedResource，从而消除 **file materialization 这一特定人工 gate**。
+目标：构建一个最小 read-only Remote MCP bridge，让 GitHub 文件内容以 inline MCP `TextContent` 返回，而不是 file attachment / `EmbeddedResource`，从而消除 **file materialization 这一特定人工 gate**。
 
-## Hypothesis
-
-如果 MCP tool result 只返回 `TextContent`，不返回 `EmbeddedResource` / `ResourceLink` / connector file reference，则 ChatGPT 不需要进入 file materialization path。
-
-同时，为避免 PAT，Bridge 应使用 OAuth：
-
-- MCP client ↔ Bridge：OAuth 2.1 Authorization Code + PKCE
-- Bridge ↔ GitHub：GitHub OAuth web flow + PKCE
-
-## Relevant Knowledge Nodes
-
-- Agent Architecture Model
-- Reversible Decision Model
-- Evidence Ladder
-- MCP Content Transport Boundary Model
-- MCP architecture and trust boundaries
-
-## Decision Model
+## Current Architecture
 
 采用 **read/write plane separation**：
 
-- Text Bridge 只负责 read-only GitHub file/directory reads
-- 官方 GitHub MCP 继续负责 branch / commit / PR / merge / Actions 等写操作
+- `GitHub Text MCP v3`：GitHub 文件与目录只读面
+  - `read_text_file`
+  - `list_directory`
+  - 返回 inline `TextContent`
+- `Github MCP`：写入与控制面
+  - branch / file update / commit / PR / merge / Actions 等
 
-理由：真正的问题只发生在文件读取结果的 transport representation，没有必要为解决一个 read-path friction 重写整套 GitHub MCP。
+认证最终采用更简单的 **direct GitHub OAuth**：
 
-认证优先选择 **GitHub App + OAuth user flow**，而不是 classic OAuth App：GitHub App 可以限定 repository，并设置 `Contents: Read-only`，最小化 OAuth token 权限。
+`ChatGPT → GitHub OAuth → GitHub user access token → GitHub Text MCP Bridge → GitHub API`
+
+Bridge 当前只作为受保护的 MCP Resource Server，不再要求 ChatGPT 通过 Bridge 自建的 OAuth authorization/token 中转层完成 code exchange。
+
+## Why This Architecture
+
+真正的问题发生在 GitHub file read 的 **result representation / client handling path**，而不是 GitHub 写操作本身。
+
+因此没有必要重写完整 GitHub MCP：
+
+- read path 用 Text MCP 避免 EmbeddedResource / materialization；
+- write path 继续复用成熟的 Github MCP；
+- 权限与 blast radius 保持最小。
 
 ## Evidence
 
-### Fact
+### Fact — implementation
 
-2026-08-25 已创建 private repository：
+Bridge repository：
 
 `stanleyrprose/github-text-mcp-bridge`
 
-v0.1 实现：
+v0.1 核心能力：
 
-- MCP 2026 Remote HTTP server
-- MCP OAuth discovery
-- Authorization Code + PKCE
-- DCR fallback
-- CIMD client metadata support
-- upstream GitHub OAuth + PKCE
+- Remote MCP HTTP server
+- GitHub OAuth
 - `ALLOWED_GITHUB_LOGIN` identity restriction
 - `read_text_file`
 - `list_directory`
-- tool result 仅返回 `content[].type = text`
+- successful tool result 只返回 `content[].type = text`
 - 最大 inline read 1 MB
 - binary-content guard
-- Dockerfile / compose
+- Docker / Compose
+- Cloudflare Tunnel HTTPS deployment
 - GitHub Actions CI
 
-PR #1 最终 CI green：
+### Fact — production deployment
 
-- PKCE regression test
-- TextContent / no-resource regression test
-- TypeScript build
-- Docker build
+生产 endpoint：
 
-最终 squash merge：
+`https://github-mcp.stanleyxyz.com/mcp`
 
-`b29ad84cf74c7dba423c804d06ebc4028281616a`
+部署过程中确认并修复：
 
-### Inference
+1. dependency drift：增加 `package-lock.json`，Docker / CI 改用 `npm ci`；
+2. 本机 `8787` 已被其他服务占用，host binding 改为 `127.0.0.1:18787`；
+3. 创建独立 Cloudflare Tunnel `github-text-mcp`；
+4. ChatGPT DCR/CIMD 与 Bridge 自建 OAuth authorization-server 兼容性不稳定，最终改为 ChatGPT 直接使用 GitHub OAuth；
+5. `express.json()` 已消费 MCP POST body，而 `toNodeHandler()` 未收到 `req.body`，导致 `/mcp` initialize 返回 400；改为显式 `nodeMcpHandler(req, res, req.body)` 后修复 transport handshake。
 
-由于 MCP tool result 中没有 EmbeddedResource / attachment semantics，ChatGPT 应不会触发 file materialization approval。
+### Fact — ChatGPT / private repo E2E
 
-### Unknown
+2026-08-27：
 
-尚未把 Remote MCP 真正部署到 HTTPS endpoint 并连接 ChatGPT，因此“真实 ChatGPT UI 不再出现 materialization prompt”仍未完成 E2E 验证。
+- `GitHub Text MCP v3` 已在 ChatGPT 中连接成功；
+- 本会话通过 `read_text_file` 成功读取 `stanleyrprose/personal-knowledge/GOAL.md` 与 `MAINTENANCE.md`；
+- 本会话通过 `read_text_file` 成功读取 private repo `stanleyrprose/github-text-mcp-bridge/README.md`；
+- 返回结果为 inline MCP `TextContent`；
+- 读取路径未进入 file materialization 工具/附件流程。
 
-## Action / Experiment
+因此以下原 Unknown 已转为已验证：
 
-1. 创建独立 bridge repo，避免修改官方 GitHub MCP。
-2. 只实现两个 read-only tool，严格控制 scope。
-3. 使用 OAuth-first，拒绝 PAT 作为长期架构。
-4. regression test 显式断言 tool result 是 `TextContent` 且不存在 `resource`。
-5. 用 GitHub Actions 做最小 CI。
-6. 第一次 CI 因 workflow cache/lockfile 前置配置问题未进入真实测试；移除不必要 npm cache 后继续。
-7. 为解决 GitHub MCP 无法直接读取 Actions 原始失败日志的问题，在 CI 中增加失败时把日志回贴 PR 的机制，保证后续 AI 可以恢复失败原因。
-8. CI green 后 squash merge。
-
-## Result
-
-### 已完成
-
-- Bridge source code complete
-- OAuth + PKCE implementation complete
-- unit/regression test complete
-- TypeScript build complete
-- Docker build complete
-- PR merged to main
-
-### 尚未完成
-
-- GitHub App registration
-- `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET`
-- public HTTPS deployment
-- ChatGPT Remote MCP registration
-- OAuth login E2E
-- 实际 private repository read
-- 确认不再出现 materialization approval
+- Remote MCP HTTPS deployment：**已验证**
+- ChatGPT OAuth connection：**已验证**
+- private repository read：**已验证**
+- inline TextContent read path：**已验证**
+- PKS 可将 Text MCP 作为默认 GitHub read plane：**已验证**
 
 ## What Changed in the Model
 
@@ -118,31 +95,56 @@ PR #1 最终 CI green：
 
 ### 新证据
 
-真实 ChatGPT UI 显示：GitHub file read 在 tool 已执行后仍会进入独立的 `file materialization` approval。
+真实 ChatGPT 使用表明，至少存在两个不同的 approval boundary：
+
+1. **Action authorization** — tool 能不能执行；
+2. **Result handling authorization** — tool 的返回类型是否触发 file/resource materialization 等客户端 gate。
 
 ### 修正后模型
 
-无人值守 Agent workflow 至少存在两个不同的 approval boundary：
-
-1. **Action authorization** — tool 能不能执行
-2. **Result handling authorization** — tool 返回的数据是否会触发 file/resource materialization 等客户端 gate
-
-因此设计 autonomous integrations 时，必须同时检查：
+设计 autonomous integrations 时必须同时检查：
 
 `Permission model + Result representation + Client handling policy`
 
+对 GitHub 文本读取，返回 `TextContent` 而不是 `EmbeddedResource` 是 architecture-level control，而不是单纯 permission setting。
+
+## Additional Engineering Lessons
+
+### 1. Discovery success ≠ end-to-end success
+
+OAuth metadata 可正常发现，并不代表 authorization callback、token exchange、MCP initialize、`tools/list` 都兼容。必须逐层观测真实链路。
+
+### 2. Protocol adapter 与 web framework body parser 是独立边界
+
+Express 等框架预先消费 request body 后，MCP Node adapter 必须显式接收 parsed body。否则 OAuth 可完全成功，但 MCP initialize 仍会以 400 失败。
+
+### 3. Deterministic dependency resolution belongs to deployment correctness
+
+没有 lockfile 时，本地/CI/production 的类型定义或 dependency graph 可能漂移。对长期运行的 bridge，应使用 lockfile + `npm ci`。
+
+### 4. Prefer removing unnecessary protocol layers
+
+Bridge 自建 OAuth authorization server 引入了 DCR / CIMD / callback compatibility surface。最终把 OAuth 直接委托给 GitHub，使 Bridge 回到单一职责：**受保护的 read-only MCP Resource Server**。
+
 ## Boundary / Failure Conditions
 
-- 本方案只证明代码层能产生 TextContent，不等于已经证明 ChatGPT E2E 一定不弹 materialization。
-- GitHub OAuth/App 的首次授权仍需要用户交互；目标是授权完成后的持续运行不被每次 file read 打断。
-- ChatGPT 仍可能对普通 MCP tool invocation 维持自己的安全审批策略。
-- 如果未来 Bridge 增加 write tools，需要重新做权限、token、destructive action 与 confirmation 威胁模型。
-- 大文件不能简单全部塞进 TextContent；后续应优先 search / range read / pagination，而不是提高上限。
+- Text MCP 只解决 GitHub text-file / directory read 的 result representation 问题；普通 MCP tool invocation 仍受 ChatGPT 自身安全策略约束。
+- GitHub OAuth 的首次授权仍需用户交互；目标是授权后的持续读取不被每次 materialization 打断。
+- 大文件不应无限塞进 TextContent；应优先 search / range read / pagination。
+- Bridge 当前保持 read-only；如果增加 write tools，必须重新做 destructive action / token / confirmation 威胁模型。
+- GitHub App / OAuth / ChatGPT MCP 行为可能随产品版本变化，需要在真实失败时 evidence refresh。
 
-## New Knowledge Gaps
+## PKS Integration Decision
 
-1. ChatGPT 当前对 MCP 2026 CIMD / DCR 的实际 OAuth compatibility。
-2. GitHub App OAuth user token 在 ChatGPT Remote MCP 场景中的刷新与长期运行行为。
-3. `Never ask` 与 read-only custom MCP tool 的实际作用边界。
-4. TextContent E2E 是否完全绕开 materialization UI。
-5. 若 E2E 成功，是否把 `personal-knowledge` 和工程 repo 的默认 read plane 切换到 Text Bridge。
+从本次 E2E 之后：
+
+- `stanleyrprose/personal-knowledge` 的默认 GitHub read plane：**GitHub Text MCP**；
+- 默认 GitHub write plane：**Github MCP**；
+- 不再把 `get_file_contents` 作为 PKS 的默认读取方式；
+- 写入前仍遵守 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md` 与 atomic commit / PR 规则。
+
+## Remaining Knowledge Gaps
+
+1. GitHub OAuth user token 在长期 ChatGPT Remote MCP 使用中的 refresh 行为与失效边界。
+2. Text MCP 对大文件的最佳 range/search API 设计。
+3. ChatGPT 新会话是否能稳定自动恢复 PKS capture protocol，而无需用户显式提醒。
