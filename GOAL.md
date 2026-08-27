@@ -39,10 +39,16 @@
   - 已成功读取 private repo `github-text-mcp-bridge`
   - 返回 inline `TextContent`，未进入 file materialization 读取路径
   - PKS 默认采用 GitHub Text MCP read plane + Github MCP write plane
+- Human View Layer 已被真实摩擦触发：
+  - Android 上直接使用 GitHub UI 阅读 PKS 不方便
+  - 引入 `Obsidian + GitSync` 作为 Android View / Edit Layer
+  - GitHub 继续保持唯一 Source of Truth
+  - 新增 `HOME.md` 作为手机友好导航入口
+  - `.obsidian/` 等设备/UI 状态默认不进入 Git
 
 ## Operating Loop
 
-`真实问题 → 先解决问题 → 判断 capture 价值 → 通过 Text MCP 读取当前知识状态 → 更新既有模型优先 → 检查证据/反例/边界 → 通过 Github MCP commit → 后续对话复用或修正`
+`真实问题 → 先解决问题 → 判断 capture 价值 → 通过 Text MCP 读取当前知识状态 → 更新既有模型优先 → 检查证据/反例/边界 → 通过 Github MCP commit → GitHub 成为最新 canonical state → Human/AI 后续从 GitHub 同步并复用或修正`
 
 ## Rules
 
@@ -55,8 +61,9 @@
 7. 真实项目是知识验证层，而不是与知识库分离的附件。
 8. 新 AI / 新对话触发知识沉淀时，先读取 `GOAL.md` 与 `MAINTENANCE.md`，再按需要读取其他上下文。
 9. GitHub 文本读取优先使用 GitHub Text MCP；写入与 GitHub 控制操作使用 Github MCP。
-10. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
-11. 自动维护的目标是提升知识质量，不是增加 commit 数量。
+10. Obsidian / GitSync 是 Human View / Edit Layer，不是第二 Source of Truth。
+11. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
+12. 自动维护的目标是提升知识质量，不是增加 commit 数量。
 
 ## v0.3 Validation Summary
 
@@ -97,7 +104,9 @@
 - duplicate knowledge nodes；
 - stale facts；
 - Capture Gate 是否出现真实失效；
-- GitHub Text MCP read plane 的长期稳定性。
+- GitHub Text MCP read plane 的长期稳定性；
+- Obsidian + GitSync 的 Android 阅读收益；
+- Human edit 与 AI edit 的 merge conflict 频率与解决成本。
 
 只有真实问题出现时再修改协议。
 
@@ -108,17 +117,18 @@
 - 累积若干新的真实 capture；
 - 重大项目结束；
 - 核心模型被现实反例挑战；
-- 某领域准备进入重要实际决策。
+- 某领域准备进入重要实际决策；
+- Human View Layer 出现重复 sync/conflict friction。
 
 ### P2 — Future Work（当前不实施）
 
 只有知识规模与实际维护成本证明有需要时，才考虑：
 
-- Obsidian / GitSync 前端同步
+- 同步少量经过证明有价值的 Obsidian vault 配置
 - 定期 staleness / confidence review
 - evidence refresh automation
 - GitHub Actions 自动检查
-- RAG / GraphRAG / Knowledge Graph
+- semantic search / RAG / GraphRAG / Knowledge Graph
 
 ## Done Definition for v0.3
 
@@ -143,4 +153,5 @@
 4. 从真实对话继续，只有触发 Capture Gate 时才维护知识库。
 5. 每次只沉淀真正具有长期价值的知识。
 6. 写入与 GitHub 控制操作使用 Github MCP。
-7. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。
+7. Android / Obsidian 是 Human View / Edit Layer；发生 sync conflict 时以 Git history 与当前知识语义判断，不把本地副本当作新的 Source of Truth。
+8. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。

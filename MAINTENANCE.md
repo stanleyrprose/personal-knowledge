@@ -185,3 +185,30 @@ PKS 默认采用分离的 GitHub tool plane：
 - 写入前仍必须遵守 Capture Gate、epistemic status、atomic commit / PR 规则。
 - 若 Text MCP 不可用，才允许使用其他可用读取路径作为 fallback，并明确记录该环境限制。
 - 不因为 read/write plane 分离而扩大知识库 scope 或 GitHub 权限。
+
+## 14. Human View / Edit Layer — Obsidian + GitSync
+
+当 GitHub UI 在 Android 上产生真实阅读摩擦后，允许增加 Obsidian 作为 Human View / Edit Layer，但 **GitHub repository 仍是唯一 canonical Source of Truth**。
+
+### Sync architecture
+
+`GitHub → GitSync → Android local folder → Obsidian`
+
+人工编辑返回：
+
+`Obsidian → local Markdown → GitSync commit/push → GitHub`
+
+### Rules
+
+1. 打开 Obsidian 前先 pull / sync，减少编辑 stale copy 的概率。
+2. 编辑完成后尽快 commit + push，缩短 human/AI divergent-edit window。
+3. `.obsidian/`、`.trash/` 和其他设备/UI 状态默认不进入 PKS。
+4. 同一 Vault 不同时使用 GitSync 与 Obsidian Git plugin 管理同一个 `.git` repository。
+5. 内部导航优先使用标准 Markdown 相对链接；Obsidian-only wiki link 不能成为唯一导航形式。
+6. 不启用 `*.md merge=union` 等会静默拼接知识冲突的策略。
+7. 发生 conflict 时保留冲突事实，比较 human edit、AI commit 与 Git history 后再解决。
+8. 如果未来需要同步少量 Obsidian 设置，应逐项证明长期价值，而不是直接提交整个 `.obsidian/`。
+
+### Boundary
+
+Obsidian 的 graph、backlink、plugin、workspace 属于 frontend capability。只有真实使用证明它们改善 retrieval / navigation / editing 时，才进入 PKS architecture；不能因为 Obsidian 支持这些功能就默认启用。
