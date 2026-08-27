@@ -34,10 +34,17 @@
   - AUTO-CAPTURE：Git-backed durable knowledge model
   - CANDIDATE：Obsidian / GitSync frontend 仅作为条件触发候选
   - REJECT：短期额度、安装/同步步骤等操作事实不进入长期知识库
+- GitHub read plane 已完成真实 E2E：
+  - `GitHub Text MCP v3` 已连接 ChatGPT
+  - `read_text_file` / `list_directory` 可用
+  - 已成功读取 `personal-knowledge` 文本文件
+  - 已成功读取 private repo `github-text-mcp-bridge`
+  - 返回 inline `TextContent`，未进入 file materialization 读取路径
+  - PKS 默认采用 GitHub Text MCP read plane + Github MCP write plane
 
 ## Operating Loop
 
-`真实问题 → 先解决问题 → 判断 capture 价值 → 读取当前知识状态 → 更新既有模型优先 → 检查证据/反例/边界 → commit → 后续对话复用或修正`
+`真实问题 → 先解决问题 → 判断 capture 价值 → 通过 Text MCP 读取当前知识状态 → 更新既有模型优先 → 检查证据/反例/边界 → 通过 Github MCP commit → 后续对话复用或修正`
 
 ## Rules
 
@@ -49,8 +56,9 @@
 6. 优先更新已有节点，不为每次讨论创建新文件。
 7. 真实项目是知识验证层，而不是与知识库分离的附件。
 8. 新 AI / 新对话触发知识沉淀时，先读取 `GOAL.md` 与 `MAINTENANCE.md`，再按需要读取其他上下文。
-9. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
-10. 自动维护的目标是提升知识质量，不是增加 commit 数量。
+9. GitHub 文本读取优先使用 GitHub Text MCP；写入与 GitHub 控制操作使用 Github MCP。
+10. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
+11. 自动维护的目标是提升知识质量，不是增加 commit 数量。
 
 ## Next Priorities
 
@@ -59,9 +67,10 @@
 在一个全新对话中验证：
 
 - 全局触发规则能否主动识别长期高价值知识；
-- AI 能否自行读取 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md`；
+- AI 能否自行通过 GitHub Text MCP 读取 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md`；
 - 无需用户重复解释 PKS 规则即可完成正确 capture / candidate / reject；
-- Git commit 是否符合当前协议。
+- 写入能否通过 Github MCP 完成符合当前协议的 atomic commit；
+- 整个过程不依赖 file materialization。
 
 ### P1 — 根据跨会话验证结果决定是否发布 v0.3 stable
 
@@ -86,6 +95,7 @@
 - [x] 定义新对话触发与恢复流程
 - [x] 定义事件驱动 Review
 - [x] 至少用 3 个真实主题验证 capture 行为
+- [x] 建立并验证 materialization-free GitHub Text MCP read plane
 - [ ] 至少一次在新对话中成功恢复并执行协议
 - [ ] 根据真实验证结果修订协议并发布 v0.3 stable
 
@@ -94,7 +104,8 @@
 继续本 /goal 时：
 
 1. 查看 `main` 最新 commit 与 open PR。
-2. 读取 `GOAL.md`、`MAINTENANCE.md`、`AUTO_CAPTURE.md`。
+2. 通过 GitHub Text MCP 读取 `GOAL.md`、`MAINTENANCE.md`、`AUTO_CAPTURE.md`。
 3. 不重新设计整套体系；从 `Next Priorities` 继续。
 4. 每次只沉淀真正具有长期价值的知识。
-5. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。
+5. 写入与 GitHub 控制操作使用 Github MCP。
+6. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。

@@ -155,3 +155,33 @@ GitHub 仓库只能规定“被访问后如何维护”，不能保证每个全�
 因此跨对话自动化依赖一个仓库外的全局触发规则：当对话出现长期高价值知识时，主动使用 GitHub MCP 维护 `stanleyrprose/personal-knowledge`，并先读取 `GOAL.md` 与 `MAINTENANCE.md`。
 
 如果某个 ChatGPT 环境没有该全局触发能力，则用户可用“继续长期知识库”或“记录到长期知识库”显式触发；GitHub 内部协议仍保持一致。
+
+## 13. GitHub Read / Write Plane
+
+PKS 默认采用分离的 GitHub tool plane：
+
+### Read plane
+
+优先使用 **GitHub Text MCP**：
+
+- `read_text_file`
+- `list_directory`
+
+理由：Text MCP 返回 inline MCP `TextContent`，不进入 `EmbeddedResource` / file attachment materialization 路径，适合跨会话自动恢复和无人值守读取。
+
+### Write plane
+
+继续使用 **Github MCP** 完成：
+
+- create/update file
+- branch
+- commit
+- PR / merge
+- GitHub Actions 等写入或控制操作
+
+### Default rule
+
+- 读取 `personal-knowledge` 或其他 GitHub 文本内容时，若 GitHub Text MCP 可用，默认不要使用 `get_file_contents`。
+- 写入前仍必须遵守 Capture Gate、epistemic status、atomic commit / PR 规则。
+- 若 Text MCP 不可用，才允许使用其他可用读取路径作为 fallback，并明确记录该环境限制。
+- 不因为 read/write plane 分离而扩大知识库 scope 或 GitHub 权限。
