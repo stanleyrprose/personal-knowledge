@@ -28,12 +28,28 @@
 - AUTO-CAPTURE：记录 target + commit + status。
 - CANDIDATE：记录 evidence gap / trigger condition。
 - REJECT：不创建知识节点，但允许记录为什么拒绝。
+- 如果 REJECT 是因为 visibility / sensitive-data / secret safety gate，只写去敏类别（例如 `sensitive-content-blocked`），**不得把被阻断的原始敏感内容复制进本 log**。
 - 同一对话多个事件可批量写，避免每行单独 commit。
 - ordinary chat 不进入 Gate，因此不记录。
 
+## What This Log Can and Cannot Measure
+
+可以帮助观察：
+
+- Gate outcome distribution
+- duplicate / correction / conflict / trigger events
+- non-meta vs meta capture mix
+- 已进入 Gate 的 precision proxy
+
+不能单独测量：
+
+- **False negatives / recall**：如果一个重要主题根本没有触发 Capture Gate，它不会出现在这里。
+
+因此 recall 只能在后续 Review 中通过**抽样回看真实对话**估计，例如：随机选一组事后确认重要的观点，检查当时是否触发、是否写入、是否正确定位。
+
 ## Friction Counters
 
-发生时在 Notes / Correction 中记录：
+发生时在 Correction / notes 中记录：
 
 - `duplicate-miss`
 - `retrieval-miss`
@@ -44,4 +60,4 @@
 - `safety-block`
 - `human-sync-friction`
 
-当前不追求复杂统计。等真实样本积累后再从本 log + Git history 做 Review。
+当前不追求复杂统计。等真实样本积累后再从本 log + Git history + 抽样对话做 Review。
