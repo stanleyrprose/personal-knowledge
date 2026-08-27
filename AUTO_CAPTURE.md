@@ -185,7 +185,7 @@ Capture 后的内容应尽可能保留：
 
 ## Capture Decision Log
 
-为了让 Capture precision / recall proxy、duplicate、correction 等指标可被复盘，正式 Capture Gate 的决策写入：
+为了让 Capture precision proxy、duplicate、correction 等指标可被复盘，正式 Capture Gate 的决策写入：
 
 `reviews/capture-log.md`
 
@@ -198,8 +198,10 @@ Capture 后的内容应尽可能保留：
 - 只记录真正进入 Capture Gate 的主题；普通聊天不记；
 - AUTO-CAPTURE / CANDIDATE / REJECT 都可记；
 - 同一会话多个事件可批量追加，避免无意义 commit churn；
+- 如果 REJECT 原因是 visibility / safety，`topic` 和 `notes` 只能写去敏类别（例如 `sensitive-content-blocked`），**不得把被阻断的原始敏感内容复制进 log**；
 - log 是 operational evidence，不是知识节点；
-- capture log 不替代 Git history，也不作为第二 Source of Truth。
+- capture log 不替代 Git history，也不作为第二 Source of Truth；
+- capture log **不能单独测量 false negative / recall**，因为没有进入 Gate 的漏捕获不会自动出现在 log；recall 只能通过后续对真实对话做抽样回看来估计。
 
 ## User Correction Receipt
 
