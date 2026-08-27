@@ -6,9 +6,9 @@
 
 ## Current Milestone
 
-**PKS v0.3 — Automatic Knowledge Capture**
+**PKS v0.3 — Stable**
 
-目标：让 ChatGPT / AI 在真实对话中主动识别长期高价值内容，并按照统一协议自动维护 GitHub 知识模型，而不是等待用户每次明确说“保存”。
+目标已达成：ChatGPT / AI 能在真实对话中主动识别长期高价值内容，并按照统一协议自动维护 GitHub 知识模型，而不是等待用户每次明确说“保存”。
 
 ## Current State
 
@@ -23,17 +23,15 @@
   - 定期复盘模板
   - 标准知识条目模板
   - 跨会话 AI handoff 流程
-- v0.3 已建立：
+- v0.3 已建立并通过真实验收：
   - `AUTO_CAPTURE.md`
   - AUTO-CAPTURE / CANDIDATE / REJECT 三态判断
   - Capture Gate
   - commit prefix 规范
   - 新对话触发与恢复规则
   - 事件驱动 review loop
-- v0.3 真实验收 #1 已完成：
-  - AUTO-CAPTURE：Git-backed durable knowledge model
-  - CANDIDATE：Obsidian / GitSync frontend 仅作为条件触发候选
-  - REJECT：短期额度、安装/同步步骤等操作事实不进入长期知识库
+  - 首轮三主题 Capture Gate 验证
+  - 全新对话自动恢复 / 自动 Capture 盲测
 - GitHub read plane 已完成真实 E2E：
   - `GitHub Text MCP v3` 已连接 ChatGPT
   - `read_text_file` / `list_directory` 可用
@@ -60,21 +58,57 @@
 10. 不把未验证假设写成 Fact；候选内容进入 hypothesis / Learning Queue。
 11. 自动维护的目标是提升知识质量，不是增加 commit 数量。
 
+## v0.3 Validation Summary
+
+### Validation 01 — Capture Gate
+
+通过三个真实主题验证：
+
+- AUTO-CAPTURE：Git-backed durable knowledge model
+- CANDIDATE：Obsidian / GitSync frontend 仅作为条件触发候选
+- REJECT：短期额度、安装/同步步骤等操作事实不进入长期知识库
+
+未发现需要调整 Capture Gate 阈值的真实误判。
+
+### Validation 02 — New-conversation recovery
+
+2026-08-27 在全新对话完成盲测：
+
+- AI 主动识别长期知识价值；
+- 主动恢复 PKS guidance / maintenance / auto-capture protocol；
+- 主动检查 Knowledge Map / Core Models placement；
+- 判断为 AUTO-CAPTURE；
+- 更新已有 `mental-models/core-models.md`；
+- 通过 atomic commit 保存：
+  - `e8d4c305f7e6046a3d2c49282adf16bc99036d32`
+  - `model: add single-consumer request body handoff model`
+
+详细证据见：
+
+`reviews/2026-08-27-cross-conversation-validation-v03-stable.md`
+
 ## Next Priorities
 
-### P0 — 完成跨会话真实验收
+### P0 — 真实运行 v0.3 stable
 
-在一个全新对话中验证：
+不再为了验收制造测试主题。让系统在真实工作、学习、工程和决策对话中持续运行，观察：
 
-- 全局触发规则能否主动识别长期高价值知识；
-- AI 能否自行通过 GitHub Text MCP 读取 `GOAL.md` / `MAINTENANCE.md` / `AUTO_CAPTURE.md`；
-- 无需用户重复解释 PKS 规则即可完成正确 capture / candidate / reject；
-- 写入能否通过 Github MCP 完成符合当前协议的 atomic commit；
-- 整个过程不依赖 file materialization。
+- false positive / false negative；
+- duplicate knowledge nodes；
+- stale facts；
+- Capture Gate 是否出现真实失效；
+- GitHub Text MCP read plane 的长期稳定性。
 
-### P1 — 根据跨会话验证结果决定是否发布 v0.3 stable
+只有真实问题出现时再修改协议。
 
-当前首轮 3 主题验证未发现 Capture Gate 阈值需要调整。只有出现真实误判时才修改 Gate。
+### P1 — Event-driven Review
+
+在以下情况触发 Review：
+
+- 累积若干新的真实 capture；
+- 重大项目结束；
+- 核心模型被现实反例挑战；
+- 某领域准备进入重要实际决策。
 
 ### P2 — Future Work（当前不实施）
 
@@ -96,8 +130,8 @@
 - [x] 定义事件驱动 Review
 - [x] 至少用 3 个真实主题验证 capture 行为
 - [x] 建立并验证 materialization-free GitHub Text MCP read plane
-- [ ] 至少一次在新对话中成功恢复并执行协议
-- [ ] 根据真实验证结果修订协议并发布 v0.3 stable
+- [x] 至少一次在新对话中成功恢复并执行协议
+- [x] 根据真实验证结果修订协议并发布 v0.3 stable
 
 ## Handoff
 
@@ -105,7 +139,8 @@
 
 1. 查看 `main` 最新 commit 与 open PR。
 2. 通过 GitHub Text MCP 读取 `GOAL.md`、`MAINTENANCE.md`、`AUTO_CAPTURE.md`。
-3. 不重新设计整套体系；从 `Next Priorities` 继续。
-4. 每次只沉淀真正具有长期价值的知识。
-5. 写入与 GitHub 控制操作使用 Github MCP。
-6. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。
+3. v0.3 已 stable；不要重新设计整套体系。
+4. 从真实对话继续，只有触发 Capture Gate 时才维护知识库。
+5. 每次只沉淀真正具有长期价值的知识。
+6. 写入与 GitHub 控制操作使用 Github MCP。
+7. 若本文件与实际仓库状态冲突，以 Git history + 当前文件状态为准，并修正本 checkpoint。
