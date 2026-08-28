@@ -369,3 +369,47 @@ AUTO-CAPTURE / CANDIDATE write 后，在当前对话用一句话告知：
 并明确用户可以直接纠正。
 
 这是事后可见性，不是写前审批流。
+
+## 21. Epistemic Promotion, Time Anchor & Human Sampling
+
+### Epistemic Promotion
+
+任何 `CANDIDATE / Inference / Judgment / Unknown → Fact / AUTO-CAPTURE / INSTANTIATED MODEL` 的状态升格，都必须包含可识别的**新增 evidence**，并保留：
+
+`旧状态 → 新 evidence → 新状态`
+
+禁止仅因为后续 AI 的措辞更确定、总结更流畅或重复了旧论点，就提升 epistemic status。
+
+如果 promotion 会显著改变：
+
+- 核心 Mental Model 的结论或可信度；
+- `knowledge-map/master-map.md` 中 Possessed / Instantiated 状态；
+- 会直接影响重大真实决策的长期结论；
+
+则属于 high-risk mutation，使用 branch → PR → review → merge。
+
+普通的 evidence 补充、措辞修正或不改变 epistemic status 的小更新仍可 atomic commit；不把所有 `mental-models/` 修改机械升级成 PR。
+
+### Time-sensitive Facts
+
+对政策、法规、市场、价格、软件/产品版本等会随时间变化的 Fact，正文至少记录一个时间锚点：
+
+- `As of YYYY-MM-DD`；或
+- evidence/source publication date；或
+- 明确的适用版本/时间窗口。
+
+当前不为了这一要求引入全库 typed frontmatter。只有真实 stale-knowledge friction 证明需要机器扫描时，再评估 metadata schema。
+
+### Human Sampling During Experimental Phase
+
+Long-term PKS System 仍处于实验期，因此保留最低限度的人类制衡，但不建立逐条审批流。
+
+在 Event-driven Review 时，人类优先抽样检查：
+
+- `mental-models/` 的实质性修改；
+- `knowledge-map/` 的 Possessed / Instantiated 状态变化；
+- CANDIDATE / Inference / Judgment / Unknown 的 epistemic promotion；
+- 用户曾纠正或否决的 Capture；
+- 高影响、可能改变真实决策的长期结论。
+
+目的不是让人批准每个 commit，而是用真实抽样发现 Capture drift、Inference → Fact 漂移与 AI 自我强化。抽样结果如发现问题，应记录为 `capture-correction` 并反哺 Review；不要因为一次误判立即增加新架构。

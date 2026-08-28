@@ -114,6 +114,20 @@ PUBLIC_SAFE 下硬性 REJECT：
 2. 若尚不值得成为正式节点，进入 `learning-queue.md`；
 3. 不把候选假设写成 Fact。
 
+### Epistemic Promotion Gate
+
+`CANDIDATE`、`Inference`、`Judgment`、`Unknown` 不得因为后续 AI 语气更自信而静默升级为 `Fact`、`AUTO-CAPTURE` 或 `INSTANTIATED MODEL`。
+
+发生 epistemic promotion 时必须同时满足：
+
+1. 明确写出**新增 evidence** 是什么；
+2. 新 evidence 必须足以改变原证据状态，而不是仅重复旧论述；
+3. 保留 `旧状态 → 新 evidence → 新状态` 的演化链；
+4. 若 evidence 仍不足，则维持原状态，不以措辞替代证据；
+5. 若 promotion 会显著改变核心 Mental Model、Knowledge Map 的 possessed/instantiated 状态或真实决策依据，则按 high-risk mutation 走 branch → PR → review → merge。
+
+项目验证是强 evidence，但不是唯一合法 evidence；直接观测、可靠一手资料、标准和可复核高质量来源也可以支持 promotion。
+
 ### 3. REJECT
 
 默认不进入长期知识节点：
@@ -162,7 +176,9 @@ REJECT 不产生知识节点；如果该主题已经进入正式 Capture Gate �
 4. 数据或证据不足时明确 `Unknown`，不能靠语气补全；
 5. `Estimate` 应说明估算基础、时间点或关键假设；
 6. 改变旧结论时保留 `旧判断 → 新证据 → 新判断`，禁止静默覆盖；
-7. 项目验证是强证据之一，但不是 `Fact` 的唯一合法来源；已被可靠标准/一手资料支持的机制不必人为降级为 Inference。
+7. 项目验证是强证据之一，但不是 `Fact` 的唯一合法来源；已被可靠标准/一手资料支持的机制不必人为降级为 Inference；
+8. 对政策、市场、价格、法规、产品/软件版本等**时间敏感 Fact**，正文必须至少记录 `As of YYYY-MM-DD`、evidence date 或等价时间锚点；不要求为此引入全库 frontmatter；
+9. 任意 epistemic promotion 必须遵守上面的 `Epistemic Promotion Gate`。
 
 导航、模板、纯协议指令不要求每一行加 status；只要它们在陈述事实性或知识性主张时遵守上述规则。
 
