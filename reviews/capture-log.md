@@ -20,6 +20,7 @@
 | 2026-08-25 | CANDIDATE / DEFER | Human-facing PKM frontend | Judgment / Unknown | potential value but no real friction yet | `learning-queue.md` | `c28bbca2` | later triggered by Android reading friction |
 | 2026-08-25 | REJECT | short-lived quotas / install-sync steps | not applicable | stale operational facts; no durable mechanism | — | — | none |
 | 2026-08-27 | AUTO-CAPTURE | single-consumer request-body handoff | Fact + Inference | reusable mechanism + boundary + project validation | `mental-models/core-models.md` | `e8d4c305` | none recorded |
+| 2026-09-01 | AUTO-CAPTURE | operational observability output minimization | Fact + Inference | reusable security mechanism + output-surface boundary + real CI/systemd project validation | `mental-models/operational-observability-output-minimization.md` | `000877b8` | none |
 
 ## Runtime Logging Rule
 
