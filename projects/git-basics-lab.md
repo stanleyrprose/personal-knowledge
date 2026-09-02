@@ -30,7 +30,7 @@ lab branch:    B  <- add this file
                  PR -> review diff -> merge -> main
 ```
 
-**INTENTIONAL ERROR FOR REVERT LAB:** A Git branch creates a complete independent duplicate of every project file, so each branch is effectively a separate repository.
+A branch does not create a second independent project. It is a movable name pointing at a commit lineage. A commit identifies a specific repository state; the diff describes what changed between states.
 
 ## Safety Boundary
 
