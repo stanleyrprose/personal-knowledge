@@ -21,6 +21,7 @@
 | 2026-08-25 | REJECT | short-lived quotas / install-sync steps | not applicable | stale operational facts; no durable mechanism | — | — | none |
 | 2026-08-27 | AUTO-CAPTURE | single-consumer request-body handoff | Fact + Inference | reusable mechanism + boundary + project validation | `mental-models/core-models.md` | `e8d4c305` | none recorded |
 | 2026-09-01 | AUTO-CAPTURE | operational observability output minimization | Fact + Inference | reusable security mechanism + output-surface boundary + real CI/systemd project validation | `mental-models/operational-observability-output-minimization.md` | `000877b8` | none |
+| 2026-09-04 | AUTO-CAPTURE | durability follows ownership and lifecycle | Judgment + Inference | reusable infrastructure placement model + explicit boundaries + real architecture decision | `mental-models/durability-ownership-lifecycle.md` | `4dcfeefb` | none |
 
 ## Runtime Logging Rule
 
