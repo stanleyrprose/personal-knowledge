@@ -23,6 +23,7 @@
 | 2026-09-01 | AUTO-CAPTURE | operational observability output minimization | Fact + Inference | reusable security mechanism + output-surface boundary + real CI/systemd project validation | `mental-models/operational-observability-output-minimization.md` | `000877b8` | none |
 | 2026-09-04 | AUTO-CAPTURE | durability follows ownership and lifecycle | Judgment + Inference | reusable infrastructure placement model + explicit boundaries + real architecture decision | `mental-models/durability-ownership-lifecycle.md` | `4dcfeefb` | none |
 | 2026-09-04 | AUTO-CAPTURE | VLESS + REALITY deployment diagnosis | Fact + Inference | reusable layered diagnosis + corrected target assumption + real E2E project validation | `projects/vless-reality-deployment-diagnosis.md` | `e816e2ae` | none |
+| 2026-09-07 | AUTO-CAPTURE | cloud-to-local capability bridge patterns | Fact + Inference + Judgment | reusable remote/local boundary model + six-pattern comparison + Mac Browser Plane E2E validation | `mental-models/cloud-to-local-capability-bridge-patterns.md` | `708016d1` | none |
 
 ## Runtime Logging Rule
 
