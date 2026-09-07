@@ -11,7 +11,7 @@
 
 **Models 1–8 当前统一降级为 REFERENCE STUB。** 它们可以作为未来分析入口，但未来 AI 不得把这些短提纲当成“用户已经形成的稳定模型”。
 
-Models 9–10 是当前真正 instantiated 的模型。
+Models 9–11 是当前真正 instantiated 的模型。
 
 ## 1. System Feedback Model
 
