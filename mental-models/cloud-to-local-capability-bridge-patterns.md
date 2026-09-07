@@ -132,6 +132,141 @@ Cloud 侧提交 job，Mac 主动拉取或维持 outbound session，再返回结�
 | Outbound queue/relay | No | Medium–High | High | High | Broker + agent auth | NAT / async / unreliable inbound |
 | Desktop/Computer Use | Depends on relay | Low | Low | Medium–High | Broad GUI authority | GUI-only capability |
 
+## Runtime Capability Invocation Matrix
+
+远程可达性解决以后，还需要单独决定：**Runtime 本身应通过什么接口被调用？** 这不是网络问题，而是 capability contract、耦合度、生命周期和任务模型问题。
+
+**Epistemic Status:** Fact（Browser Plane 项目接口分层） + Inference（跨 Runtime 泛化） + Judgment（默认选择顺序）
+
+调用方式可以看成一个从“高耦合本地调用”到“低耦合网络服务”的连续谱：
+
+`Function/Library -> CLI/Subprocess -> MCP stdio / Local RPC -> Unix Socket / Local HTTP -> Remote MCP/API -> Queue/Worker -> SSH/GUI fallback`
+
+| Runtime 调用方式 | 典型路径 | 主要优点 | 主要代价 | 最适用范围 |
+|---|---|---|---|---|
+| **Direct Function / Library** | Application -> in-process API -> Runtime | 最低延迟、最少序列化、实现最直接 | 语言/依赖/版本/lifecycle 强耦合 | 单体应用内部、同一代码库组件 |
+| **CLI / Subprocess** | Caller -> CLI -> Runtime | 跨语言、可人工操作、适合脚本和应急 | 参数/错误/schema 较弱，stdout 需要解析 | Human/Ops、bootstrap、diagnosis、简单 automation |
+| **MCP stdio** | Agent -> MCP client -> stdio -> MCP server -> Runtime | tool discovery、结构化 schema/result、适合多 Agent、无需端口 | 多一层 adapter/process；只解决同机 capability contract，不解决远程 reachability | 同机 AI Agent 调用共享 Runtime |
+| **Unix Socket / Local RPC** | Client -> local socket -> daemon | 无 TCP 网络暴露、高频 IPC 性能好、server 可长期驻留 | 需要自定义/维护 RPC contract 和 daemon lifecycle；AI discoverability 通常弱于 MCP | 高频本机 IPC、传统 daemon |
+| **Local HTTP / gRPC** | Client -> localhost port -> Runtime service | 跨语言、易调试、多本地 client 共享、独立 service lifecycle | listener/port/auth/routing/serialization 运维面增加 | Runtime 已天然 service 化，或需要独立长期生命周期 |
+| **Remote MCP / HTTPS API** | Remote client -> network -> Runtime service | 真正跨主机、多个远程 client 可直接共享 | TLS/Auth/ACL/rate limit/tunnel/service availability 都要管理 | Runtime 本身需要成为网络服务 |
+| **Queue / Worker** | Producer -> durable queue -> Runtime worker | async、retry、backpressure、断线恢复、批量任务 | 架构和状态管理最复杂，交互延迟高 | 批处理、后台任务、不稳定网络、durable execution |
+| **SSH / Remote Shell** | Operator/Agent -> SSH -> CLI/resource | bootstrap 快、覆盖能力广 | 权限面宽、结构化差、难做最小 capability contract | 部署、修复、诊断；不宜作为长期业务 API |
+| **GUI / Computer Use** | Agent -> screen/mouse/keyboard -> app | 没有 API 时仍可操作 | 最脆弱、最慢、状态依赖强 | 只有 GUI 的最后 fallback |
+
+### Invocation Selection Rules
+
+**Judgment:** 不追求“所有 Runtime 都统一成一种协议”，而应按边界和任务形态选择最窄、最自然的接口。
+
+#### Rule 1 — Same process first
+
+如果调用方和 Runtime 在**同一进程**，且不需要独立生命周期或多语言共享：
+
+`Same process -> Direct Library / Function Call`
+
+不要为了“服务化”而人为增加 RPC。
+
+#### Rule 2 — Same machine, choose by caller
+
+如果在**同一机器、不同进程**：
+
+- `AI Agent -> MCP stdio`：需要 tool discovery、schema、structured result 时优先；
+- `Human / Ops / scripts -> CLI`：需要可手工执行、诊断、bootstrap 时优先；
+- `High-frequency daemon IPC -> Unix socket / local RPC`：吞吐和长期 server lifecycle 比 AI tool semantics 更重要时考虑；
+- `Multi-language local service -> Local HTTP/gRPC`：确有多个独立 client 或 service lifecycle 需求时再引入。
+
+#### Rule 3 — Interactive vs asynchronous
+
+任务模型决定同步接口还是队列：
+
+`Interactive / next-step depends on current result -> MCP / RPC / API`
+
+`Bulk / scheduled / retryable / offline-tolerant -> Queue + Worker`
+
+不要用 queue 承担强交互 browser session，也不要用同步 RPC 硬扛天然需要 durable retry 的批量后台任务。
+
+#### Rule 4 — Only network-enable a Runtime when network sharing is a real requirement
+
+如果远程 client 已经通过一个可信 bridge 到达 Runtime 所在机器，优先复用本地 capability interface，而不是再次开放 Runtime 网络端口。
+
+只有出现下列真实需求时，Remote MCP / HTTPS API 才带来 material value：
+
+- 多个独立远程 client 需要直接调用；
+- 不希望依赖单一 remote bridge；
+- Runtime 要成为独立 network service；
+- 需要对外提供稳定 service contract。
+
+#### Rule 5 — Separate user/ops interface from Agent interface
+
+一个成熟 Runtime 可以同时存在多个接口，但职责应不同：
+
+`Internal code -> Library API`
+
+`Human / Ops -> CLI`
+
+`AI Agents -> MCP`
+
+`Background pipeline -> Queue/Provider contract`
+
+这不是重复建设，只要这些 adapter 都复用**同一个 Runtime state / worker / ownership model**，而不是复制执行引擎。
+
+#### Rule 6 — SSH and GUI are fallback/control paths, not default capability APIs
+
+- SSH 很适合部署、修复、诊断，但通常权限面过宽；
+- GUI/Computer Use 适合无 API/MCP/CLI 的场景，但可靠性最低。
+
+存在结构化 capability contract 时，不应因为“SSH/GUI 什么都能做”就把它们升级为主接口。
+
+### Compact Decision Tree
+
+遇到一个新 Runtime，按以下顺序判断：
+
+```text
+Same process?
+  YES -> Library / Function Call
+  NO
+   |
+Same machine?
+  YES
+   |- AI Agent -> MCP stdio
+   |- Human/Ops -> CLI
+   |- High-frequency daemon IPC -> Unix Socket / Local RPC
+   '- Multi-language shared local service -> Local HTTP/gRPC
+  NO
+   |
+Need synchronous interactive control?
+  YES
+   |- Existing trusted remote bridge -> Bridge + local MCP/RPC
+   '- Many direct remote clients -> Remote MCP / HTTPS API
+  NO
+   |
+Need durability / retry / batch / offline tolerance?
+  YES -> Queue + Worker
+  NO  -> simplest remote RPC/API that satisfies the boundary
+
+No structured interface exists?
+  -> SSH or GUI/Computer Use as fallback
+```
+
+### Five Questions Before Adding Another Interface
+
+1. **是否真的跨主机？** 如果没有，优先 local IPC，不自动引入网络 listener。
+2. **谁在调用？** Agent、人、脚本、应用内部还是后台 worker？
+3. **任务是 interactive 还是 async/durable？** 这通常决定 RPC/MCP 还是 Queue。
+4. **是否真的有多个独立远程 client？** 如果没有，不急着把 Runtime network-service 化。
+5. **是否需要独立 service lifecycle？** 如果不需要，stdio/subprocess 往往比 daemon + HTTP 更简单。
+
+### Project-Layering Pattern
+
+**Fact（项目观测）:** Mac Browser Plane 当前形成了清晰的多接口分工：
+
+- Runtime 内部实现/worker 层承担真实执行；
+- CLI 主要承担运维、doctor、status 等 human/ops 入口；
+- MCP stdio 作为 Agent 标准 capability contract；
+- Cloud ChatGPT 通过 remote bridge 到达 Mac 后继续复用本地 MCP，而不是给 Browser Runtime 再增加第二个网络 API。
+
+**Inference:** 这种“一个 Runtime，多种薄 adapter”的模式比“每个 client 各自复制一套 Runtime/API”更容易保持状态一致、测试一致和 ownership 清晰。
+
 ## Selection Heuristic
 
 **Judgment:** 默认优先选择“满足需求的最窄远程暴露面”，而不是“最统一的协议”。
@@ -173,6 +308,8 @@ Remote bridge 解决“能不能到 Mac”；MCP/REST/CLI 解决“到了以后�
 - **Runtime duplication**：每个 client 启一套独立 runtime，造成 profile/state/resource 冲突。
 - **Bridge authority blindness**：看到 stdio 没开端口，就忽略 remote execution bridge 本身可能具有很高权限。
 - **GUI-first automation**：目标已有 MCP/API，却仍优先使用脆弱的鼠标键盘自动化。
+- **Service-everything bias**：同进程或同机能力没有真实共享需求，却为了“架构完整”强行增加 daemon/HTTP/gRPC。
+- **Queue-everything bias**：交互式任务被强行异步化，增加状态机和延迟，却没有 durability 收益。
 
 ## Project Validation
 
@@ -186,13 +323,15 @@ Remote bridge 解决“能不能到 Mac”；MCP/REST/CLI 解决“到了以后�
 
 - remote reachability layer 与 local capability transport 可以分离；
 - cloud client 不要求 local capability 必须暴露 HTTP；
-- one runtime / multiple clients 在该项目中可行。
+- one runtime / multiple clients 在该项目中可行；
+- Library/CLI/MCP/remote bridge 可以承担不同 interface role，而不要求协议统一。
 
 该 evidence **不证明**：
 
 - bridge + stdio 对所有远程系统都优于 HTTPS MCP；
 - 所有本地 capability 都适合 MCP；
-- 不需要独立 auth/sandbox/authorization policy。
+- 不需要独立 auth/sandbox/authorization policy；
+- 所有 Runtime 都应该同时拥有 Library、CLI、MCP、HTTP 和 Queue 接口。
 
 ## Reusable Mental Model
 
@@ -209,4 +348,18 @@ Remote bridge 解决“能不能到 Mac”；MCP/REST/CLI 解决“到了以后�
 - 哪一层需要异步 durability？
 - 能否复用现有 runtime，而不是新增一套服务？
 
-先按边界选择 transport，再按 capability 选择 protocol，通常比“所有层统一成 HTTP”更稳健。
+再针对 Runtime interface 本身问：
+
+`同进程？ -> Library`
+
+`同机 Agent？ -> MCP stdio`
+
+`同机 Human/Ops？ -> CLI`
+
+`高频 daemon IPC？ -> Unix Socket / Local RPC`
+
+`多个直接远程 client？ -> Remote MCP / HTTPS API`
+
+`异步 durable workload？ -> Queue + Worker`
+
+先按边界选择 transport，再按调用者与任务模型选择 capability interface，通常比“所有层统一成 HTTP”或“所有能力统一成 MCP”更稳健。
