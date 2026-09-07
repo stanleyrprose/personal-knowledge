@@ -22,6 +22,9 @@
 - [MCP Content Transport Boundary](../mental-models/mcp-content-transport-boundary.md)
   - Status: Instantiated
   - Evidence: ChatGPT file materialization behavior + Text MCP validation
+- [Cloud-to-Local Capability Bridge Patterns](../mental-models/cloud-to-local-capability-bridge-patterns.md)
+  - Status: Instantiated
+  - Evidence: Cloud ChatGPT → remote execution bridge → local MCP stdio → Mac Browser Plane E2E validation
 - [GitHub Text MCP Bridge Project](../projects/github-text-mcp-bridge.md)
   - Status: Project validation record
 
