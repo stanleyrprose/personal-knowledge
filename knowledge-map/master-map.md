@@ -19,6 +19,9 @@
 - [Single-Consumer Request Body / Parsed-Body Handoff Model](../mental-models/core-models.md#10-single-consumer-request-body--parsed-body-handoff-model)
   - Status: Instantiated
   - Evidence: Node/Express + MCP production bug and fix
+- [Agent Skill Composition / Context-Budget Model](../mental-models/core-models.md#11-agent-skill-composition--context-budget-model)
+  - Status: Instantiated
+  - Evidence: mattpocock/skills implementation study + explicit applicability/boundary analysis (2026-09-07)
 - [MCP Content Transport Boundary](../mental-models/mcp-content-transport-boundary.md)
   - Status: Instantiated
   - Evidence: ChatGPT file materialization behavior + Text MCP validation
