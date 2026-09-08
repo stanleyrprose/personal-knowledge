@@ -26,6 +26,7 @@
 | 2026-09-07 | AUTO-CAPTURE | cloud-to-local capability bridge patterns | Fact + Inference + Judgment | reusable remote/local boundary model + six-pattern comparison + Mac Browser Plane E2E validation | `mental-models/cloud-to-local-capability-bridge-patterns.md` | `708016d1` | none |
 | 2026-09-07 | AUTO-CAPTURE | agent skill composition / context-budget model | Fact + Inference + Judgment | reusable Agent engineering mechanism + context/cognitive-load tradeoff + explicit adoption boundaries | `mental-models/core-models.md#11-agent-skill-composition--context-budget-model` | `76ebdb20` | none |
 | 2026-09-07 | AUTO-CAPTURE | runtime capability invocation selection matrix | Fact + Inference + Judgment | reusable interface-selection model + caller/task/lifecycle decision rules + Browser Plane project validation | `mental-models/cloud-to-local-capability-bridge-patterns.md#runtime-capability-invocation-matrix` | `569cf74e` | none |
+| 2026-09-08 | AUTO-CAPTURE | ChatGPT Git-backed Skill Architecture project validation | Fact + Inference + Judgment | material delta to Model 11: frozen implementation + lossless migration + real-repo E2E + degraded-routing evidence | `projects/chatgpt-git-backed-skill-architecture-validation.md` | `e831a7d1` | none |
 
 ## Runtime Logging Rule
 
