@@ -29,7 +29,6 @@
 | 2026-09-08 | AUTO-CAPTURE | ChatGPT Git-backed Skill Architecture project validation | Fact + Inference + Judgment | material delta to Model 11: frozen implementation + lossless migration + real-repo E2E + degraded-routing evidence | `projects/chatgpt-git-backed-skill-architecture-validation.md` | `e831a7d1` | none |
 | 2026-09-13 | AUTO-CAPTURE | PocketBase / Backend-as-a-Box adoption gate | Fact + Inference + Judgment | reusable architecture decision gate + explicit boundaries + SignalForge project validation | `mental-models/pocketbase-backend-adoption-gate.md` | `aa63663c` | none |
 
-| 2026-10-10 | AUTO-CAPTURE | AnyPS5 binary relinking / compatibility preflight | Fact + Inference + Judgment + Unknown | non-meta mechanism + explicit compatibility boundary + reusable Agent capability preflight; source-reading only, no E2E validation | `mental-models/anyps5-binary-relinking-compatibility-preflight.md` | `c4ad4fb3` | none |
 
 ## Runtime Logging Rule
 
