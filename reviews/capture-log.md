@@ -70,3 +70,4 @@
 - `human-sync-friction`
 
 当前不追求复杂统计。等真实样本积累后再从本 log + Git history + 抽样对话做 Review。
+| 2026-10-12 | CANDIDATE / DEFER | Agent-to-Agent messaging state boundary | Inference + Judgment | reusable delivery/wake/execution/verification distinction and receiver-controlled wake policy, but no real cross-machine E2E or production validation yet | — | — | defer until bounded Mac mini ↔ VPS pilot produces independent evidence |
